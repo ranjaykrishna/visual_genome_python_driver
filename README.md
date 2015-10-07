@@ -1,2 +1,2 @@
-# visual_genome_python_driver
+# Visual Genome Python Driver
 A python wrapper for the Visual Genome API
