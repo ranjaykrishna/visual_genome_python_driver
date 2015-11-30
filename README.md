@@ -10,15 +10,14 @@ To send a request to the server using this wrapper, call requestHandler in modul
 Default argument values:  
 requestHandler(request_type="", image_id=0, qa_type="", image_options="",take_all=False)
 
-Arguement value space  
+Arguement value space:  
 request_type: {"images", "image", "qa"}  
 image_id: int  
 (optional)qa_type: {"what", "when", "who", "why", "which", "where", "how"}  
 (optional)image_options: {"regions", "graph"}  
 take_all: boolean
     
-Mapping between argument values and http requests
-
+Mapping between argument values and http requests:  
 GET images/all  
 request_type="images", take_all=True  
 Returns an ImageData object
