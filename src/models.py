@@ -60,14 +60,14 @@ Objects.
   names      string array
   synsets    Synset array
 """
-class BoundingBox:
-	def __init__(self, id, x, y, width, height, names, synsets):
-		self.id = id
-		self.x = x
-		self.y = y
-		self.width = width
-		self.height = height
-		self.names = names
+class Object:
+  def __init__(self, id, x, y, width, height, names, synsets):
+    self.id = id
+    self.x = x
+    self.y = y
+    self.width = width
+    self.height = height
+    self.names = names
     self.synsets = synsets
 
 """
