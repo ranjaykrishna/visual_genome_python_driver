@@ -47,5 +47,5 @@ def GetImageIdsInRange(startIndex=0, endIndex=99):
 """
 Get the data about an image
 """
-get GetImageData(id):
+def GetImageData(id):
   pass
