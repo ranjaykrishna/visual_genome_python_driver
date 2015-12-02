@@ -97,16 +97,6 @@ class Attribute:
     self.synset = synset
 
 """
-	Attributes:
-    name       string
-    obj_canon  string
-"""
-class BoxedObject:
-	def __init__(self, name, object_canon):
-		self.name = name
-		self.obj_canon = object_canon
-
-"""
 Question Answer Pairs.
   ID         int
   image      int
