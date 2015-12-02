@@ -1,6 +1,7 @@
 import httplib
 import json
-import models
+from models import Image, Object, Attribute, Relationship
+from models import Region, Graph, QA, QAObject, Synset
 
 """
 Helper Method used to get all data from request string.
@@ -47,5 +48,15 @@ def GetImageIdsInRange(startIndex=0, endIndex=99):
 """
 Get the data about an image
 """
-def GetImageData(id):
-  pass
+def GetImageData(id=61512):
+  data = RetrieveData('/api/v0/images/' + str(id))
+  if 'detail' in data and data['detail'] == 'Not found.':
+    return None
+  url = data['url']
+  width = data['width']
+  height = data['height']
+  coco_id = data['coco_id']
+  flickr_id = data['flickr_id']
+  image = Image(id, url, width, height, coco_id, flickr_id)
+  return image	
+

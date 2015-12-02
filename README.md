@@ -23,6 +23,13 @@ There are 108,249 images currently in the Visual Genome dataset. Instead of gett
 ````
 
 #### Get image data
+Now, let's get basic information about an image. Specifically, for a image id, we will extract the url of the image, it's width and height (dimensions). We will also collect it's COCO and Flickr ids from their respective datasets.
+
+````python
+> image = vg.GetImageData(id=61512)
+> print image
+id: 61512, coco\_id: 248774, flickr\_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG\_100K/61512.jpg
+````
 
 #### Get Region Descriptions for an image
 

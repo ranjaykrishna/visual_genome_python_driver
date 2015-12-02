@@ -10,11 +10,17 @@ Image.
   height     int 
 """
 class Image:
-  def __init__(self, id, data_sets, url, width, height):
+  def __init__(self, id, url, width, height, coco_id, flickr_id):
     self.id = id
     self.url = url
     self.width = width
     self.height = height
+    self.coco_id = coco_id
+    self.flickr_id = flickr_id
+
+  def __str__(self):
+    return 'id: %d, coco_id: %d, flickr_id: %d, width: %d, url: %s' \
+        % (self.id, self.coco_id, self.flickr_id, self.width, self.url)
 
 """
 Region.
