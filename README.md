@@ -4,32 +4,34 @@ A python wrapper for the [Visual Genome API](http://visualgenome.org/api/v0/). V
 #### Get all Visual Genome image ids
 All the data in Visual Genome must be accessed per image. Each image is identified by a unique id. So, the first step is to get the list of all image ids in the Visual Genome dataset.
 
-````python
+```python
 > from src import vg
 > ids = vg.GetAllImageIds()
 > print ids[0]
 1
-````
+```
 
 `ids` is a python array of integers where each integer is an image id.
 
 #### Get a range of Visual Genome image ids
 There are 108,249 images currently in the Visual Genome dataset. Instead of getting all the image ids, you might want to just get the ids of a few images. To get the ids of images 2000 to 2010, you can use the following code:
 
-````python
+```python
 > ids = vg.GetImageIdsInRange(startIndex=2000, endIndex=2010)
 > print ids
 [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
-````
+```
 
 #### Get image data
 Now, let's get basic information about an image. Specifically, for a image id, we will extract the url of the image, it's width and height (dimensions). We will also collect it's COCO and Flickr ids from their respective datasets.
 
-````python
+```python
 > image = vg.GetImageData(id=61512)
 > print image
 id: 61512, coco\_id: 248774, flickr\_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG\_100K/61512.jpg
-````
+```
+
+`GetImageData` returns an `Image` model that you can read about in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
 
 #### Get Region Descriptions for an image
 
