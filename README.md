@@ -28,7 +28,7 @@ Now, let's get basic information about an image. Specifically, for a image id, w
 ```python
 > image = vg.GetImageData(id=61512)
 > print image
-id: 61512, coco\_id: 248774, flickr\_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG\_100K/61512.jpg
+id: 61512, coco_id: 248774, flickr_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG_100K/61512.jpg
 ```
 
 `GetImageData` returns an `Image` model that you can read about in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
