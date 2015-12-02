@@ -44,3 +44,8 @@ def GetImageIdsInRange(startIndex=0, endIndex=99):
   ids = ids[:endIndex-startIndex+1]
   return ids
 
+"""
+Get the data about an image
+"""
+get GetImageData(id):
+  pass

@@ -5,8 +5,8 @@ A python wrapper for the [Visual Genome API](http://visualgenome.org/api/v0/). V
 All the data in Visual Genome must be accessed per image. Each image is identified by a unique id. So, the first step is to get the list of all image ids in the Visual Genome dataset.
 
 ````python
-> from src import controllers
-> ids = controllers.GetAllImageIds()
+> from src import vg
+> ids = vg.GetAllImageIds()
 > print ids[0]
 1
 ````
@@ -17,7 +17,7 @@ All the data in Visual Genome must be accessed per image. Each image is identifi
 There are 108,249 images currently in the Visual Genome dataset. Instead of getting all the image ids, you might want to just get the ids of a few images. To get the ids of images 2000 to 2010, you can use the following code:
 
 ````python
-> ids = controllers.GetImageIdsInRange(startIndex=2000, endIndex=2010)
+> ids = vg.GetImageIdsInRange(startIndex=2000, endIndex=2010)
 > print ids
 [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
 ````
