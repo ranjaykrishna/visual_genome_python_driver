@@ -1,5 +1,5 @@
 # Visual Genome Python Driver
-A python wrapper for the [Visual Genome API](http://visualgenome.org/api/v0/). Visit the website for a complete list of [object models](http://visualgenome.org/api/v0/api_object_model.html) and details about all [endpoints](http://visualgenome.org/api/v0/api_endpoint_reference.html). Look at our demo to see how you can use the python driver to access all the Visual Genome data.
+A python wrapper for the [Visual Genome API](http://visualgenome.org/api/v0/). Visit the website for a complete list of [object models](http://visualgenome.org/api/v0/api_object_model.html) and details about all [endpoints](http://visualgenome.org/api/v0/api_endpoint_reference.html). Look at our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see how you can use the python driver to access all the Visual Genome data.
 
 #### Get all Visual Genome image ids
 All the data in Visual Genome must be accessed per image. Each image is identified by a unique id. So, the first step is to get the list of all image ids in the Visual Genome dataset.
@@ -44,6 +44,7 @@ x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bri
 ```
 
 `GetRegionDescriptionsOfImage` returns an array of `Region` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
+Check out our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see these regions get visualized.
 
 #### Get Scene Graph for an image
 TODO
