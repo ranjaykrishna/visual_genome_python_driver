@@ -43,6 +43,8 @@ Now, let's get some exciting data: dense captions of an image. In Visual Genome,
 x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
 ```
 
+`GetRegionDescriptionsOfImage` returns an array of `Region` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
+
 #### Get Scene Graph for an image
 TODO
 
