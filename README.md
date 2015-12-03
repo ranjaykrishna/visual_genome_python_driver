@@ -34,14 +34,26 @@ id: 61512, coco_id: 248774, flickr_id: 6273011878, width: 1024, url: https://cs.
 `GetImageData` returns an `Image` model that you can read about in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
 
 #### Get Region Descriptions for an image
+Now, let's get some exciting data: dense captions of an image. In Visual Genome, these are called region descriptions. Each region description is a textual description of a particular region in the image. A region is defined by it's top left coordinates (x, y) and a width and height.
+
+```python
+# Let's get the regions for image with id=61512
+> regions = GetRegionDescriptionsOfImage(id=61512)
+> print regions[0]
+x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
+```
 
 #### Get Scene Graph for an image
+TODO
 
 #### Get Question Answers for an image
+TODO
 
 #### Get all Questions Answers in the dataset
+TODO
 
 #### Get one type of Questions Answers from  the entire dataset
+TODO
 
 ### License
 MIT License copyright Ranjay Krishna
@@ -54,5 +66,5 @@ Follow us on Twitter:
 - [@VisualGenome](https://twitter.com/visualgenome)
 
 ### Want to Help?
-If you'd like to help, write example code, contribute patches, document things on the wiki, tweet about it. Your help is always appreciated!
+If you'd like to help, write example code, contribute patches, document methods, tweet about it. Your help is always appreciated!
 

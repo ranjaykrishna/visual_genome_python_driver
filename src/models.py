@@ -25,22 +25,24 @@ class Image:
 """
 Region.
   image 		       int
+  phrase           string
   x                int
   y                int
   width            int
   height           int
-  relationships    Relationship array
-  attributes       Attribute array
 """
 class Region:
-  def __init__(self, image, x, y, width, height, relationships, attributes):
+  def __init__(self, image, phrase, x, y, width, height):
     self.image = image
+    self.phrase = phrase
     self.x = x
     self.y = y
     self.width = width
     self.height = height
-    self.relationships = relationships
-    self.attributes = attributes
+
+  def __str__ (self):
+    return 'x: %s, y: %d, width: %d, height: %d, phrase: %s, image: %d' % \
+        (self.x, self.y, self.width, self.height, self.phrase, self.image.id)
 
 """
 Graphs contain objects, relationships and attributes

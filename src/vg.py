@@ -8,6 +8,7 @@ Helper Method used to get all data from request string.
 """
 def RetrieveData(request):
   connection = httplib.HTTPSConnection("visualgenome.org", '443')
+  #connection = httplib.HTTPConnection("localhost", '8000')
   connection.request("GET", request)
   response = connection.getresponse()
   jsonString = response.read()
@@ -46,7 +47,7 @@ def GetImageIdsInRange(startIndex=0, endIndex=99):
   return ids
 
 """
-Get the data about an image
+Get data about an image.
 """
 def GetImageData(id=61512):
   data = RetrieveData('/api/v0/images/' + str(id))
@@ -59,4 +60,35 @@ def GetImageData(id=61512):
   flickr_id = data['flickr_id']
   image = Image(id, url, width, height, coco_id, flickr_id)
   return image	
+
+"""
+Get the region descriptions of an image.
+"""
+def GetRegionDescriptionsOfImage(id=61512):
+  image = GetImageData(id=id)
+  data = RetrieveData('/api/v0/images/' + str(id) + '/regions')
+  if 'detail' in data and data['detail'] == 'Not found.':
+    return None
+  regions = []
+  for d in data:
+    regions.append(Region(image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
+  return regions
+
+"""
+Gets all the QA from the dataset.
+"""
+def GetAllQAs():
+  pass
+
+"""
+Get all QA's of a particular type - example, 'why'
+"""
+def GetQAofType(qtype='why'):
+  pass
+
+"""
+Get all QAs for a particular image.
+"""
+def GetQAofImage(id=61512):
+  pass
 
