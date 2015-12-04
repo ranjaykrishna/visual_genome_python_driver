@@ -47,7 +47,25 @@ id: 1, x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse wit
 Check out our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see these regions get visualized.
 
 #### Get Region Graph from Region.
-TODO
+Let's get the region graph of the Region we printed out above. Region Graphs are tiny scene graphs for a particular region of an image. It contains: objects, attributes and relationships. Objects are localized in the image with bounding boxes. Attributes modify the object while Relationships are interactions between pairs of objects. We will get the scene graph of an image and print out the objects, attributes and relationships.
+
+```python
+# Remember that the region desription is 'A brown, sleek horse with a bridle'.
+> graph = GetSceneGraphOfImage()
+> print graph.objects
+[horse]
+>
+>
+> print graph.attributes
+[horse is brown]
+>
+>
+print graph.relationships
+[]
+```
+
+The region graph has one object: `horse` and one attribute `brown` to describe the `horse`. It has no relationships.
+
 
 #### Get Scene Graph for an image
 Now, let's get the entire scene graph of an image. Each scene graph has three components: objects, attributes and relationships. Objects are localized in the image with bounding boxes. Attributes modify the object while Relationships are interactions between pairs of objects. We will get the scene graph of an image and print out the objects, attributes and relationships.

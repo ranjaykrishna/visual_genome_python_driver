@@ -121,7 +121,7 @@ def GetRegionGraphOfRegion(image_id=61512, region_id=1):
   data = RetrieveData('/api/v0/images/' + str(image_id) + '/regions/' + str(region_id))
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  return ParseGraph(data, image)
+  return ParseGraph(data[0], image)
 
 """
 Get Scene Graph of an image.
