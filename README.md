@@ -40,14 +40,37 @@ Now, let's get some exciting data: dense captions of an image. In Visual Genome,
 # Let's get the regions for image with id=61512
 > regions = GetRegionDescriptionsOfImage(id=61512)
 > print regions[0]
-x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
+id: 1, x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
 ```
 
 `GetRegionDescriptionsOfImage` returns an array of `Region` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
 Check out our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see these regions get visualized.
 
-#### Get Scene Graph for an image
+#### Get Region Graph from Region.
 TODO
+
+#### Get Scene Graph for an image
+Now, let's get the entire scene graph of an image. Each scene graph has three components: objects, attributes and relationships. Objects are localized in the image with bounding boxes. Attributes modify the object while Relationships are interactions between pairs of objects. We will get the scene graph of an image and print out the objects, attributes and relationships.
+
+```python
+# First, let's get the scene graph
+> graph = GetSceneGraphOfImage()
+# Now let's print out the objects. We will only print out the names and not the bounding boxes to make it look clean.
+print '****** Objects ******'
+print graph.objects
+# Now, let's print out the attributes
+print '****** Attributes ******'
+print graph.attributes
+# Finally, let's print out the relationships
+print '****** Relationships ******'
+print graph.relationships
+****** Objects ******
+[horse, grass, horse, bridle, truck, sign, gate, truck, tire, trough, window, door, building, halter, mane, mane, leaves, fence]
+****** Attributes ******
+[3015675: horse is brown, 3015676: horse is spotted, 3015677: horse is red, 3015678: horse is dark brown, 3015679: truck is red, 3015680: horse is brown, 3015681: truck is red, 3015682: sign is blue, 3015683: gate is red, 3015684: truck is white, 3015685: tire is blue, 3015686: gate is wooden, 3015687: horse is standing, 3015688: truck is red, 3015689: horse is brown and white, 3015690: building is tan, 3015691: halter is red, 3015692: horse is brown, 3015693: gate is wooden, 3015694: grass is grassy, 3015695: truck is red, 3015696: gate is orange, 3015697: halter is red, 3015698: tire is blue, 3015699: truck is white, 3015700: trough is white, 3015701: horse is brown and cream, 3015702: leaves is green, 3015703: grass is lush, 3015704: horse is enclosed, 3015705: horse is brown and white, 3015706: horse is chestnut, 3015707: gate is red, 3015708: leaves is green, 3015709: building is brick, 3015710: truck is large, 3015711: gate is red, 3015712: horse is chestnut colored, 3015713: fence is wooden]
+****** Relationships ******
+[3199950: horse stands on top of grass, 3199951: horse is in grass, 3199952: horse is wearing bridle, 3199953: trough is for horse, 3199954: window is next to door, 3199955: building has door, 3199956: horse is nudging horse, 3199957: horse has mane, 3199958: horse has mane, 3199959: trough is for horse]
+```
 
 #### Get Question Answers for an image
 TODO

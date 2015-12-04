@@ -32,7 +32,8 @@ Region.
   height           int
 """
 class Region:
-  def __init__(self, image, phrase, x, y, width, height):
+  def __init__(self, id, image, phrase, x, y, width, height):
+    self.id = id
     self.image = image
     self.phrase = phrase
     self.x = x
@@ -41,8 +42,8 @@ class Region:
     self.height = height
 
   def __str__ (self):
-    return 'x: %s, y: %d, width: %d, height: %d, phrase: %s, image: %d' % \
-        (self.x, self.y, self.width, self.height, self.phrase, self.image.id)
+    return 'id: %d, x: %d, y: %d, width: %d, height: %d, phrase: %s, image: %d' % \
+        (self.id, self.x, self.y, self.width, self.height, self.phrase, self.image.id)
 
 """
 Graphs contain objects, relationships and attributes
@@ -78,6 +79,13 @@ class Object:
     self.names = names
     self.synsets = synsets
 
+  def __str__(self):
+    name = self.names[0] if len(self.names) != 0 else 'None'
+    return '%s' % (name)
+
+  def __repr__(self):
+    return str(self)
+
 """
 Relationships. Ex, 'man - jumping over - fire hydrant'.
     subject    int
@@ -86,11 +94,18 @@ Relationships. Ex, 'man - jumping over - fire hydrant'.
     rel_canon  Synset
 """
 class Relationship:
-  def __init__(self, subject, predicate, object, synset):
+  def __init__(self, id, subject, predicate, object, synset):
+    self.id = id
     self.subject = subject
     self.predicate = predicate
     self.object = object
     self.synset = synset
+
+  def __str__(self):
+    return "%d: %s %s %s" % (self.id, self.subject, self.predicate, self.object)
+
+  def __repr__(self):
+    return str(self)
 
 """
 Attributes. Ex, 'man - old'.
@@ -99,10 +114,17 @@ Attributes. Ex, 'man - old'.
   synset     Synset
 """
 class Attribute:
-  def __init__(self, subject, attribute, synset):
+  def __init__(self, id, subject, attribute, synset):
+    self.id = id
     self.subject = subject
     self.attribute = attribute
     self.synset = synset
+
+  def __str__(self):
+    return "%d: %s is %s" % (self.id, self.subject, self.attribute)
+
+  def __repr__(self):
+    return str(self)
 
 """
 Question Answer Pairs.

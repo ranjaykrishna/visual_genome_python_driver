@@ -3,6 +3,7 @@ import json
 from models import Image, Object, Attribute, Relationship
 from models import Region, Graph, QA, QAObject, Synset
 
+#=================== Helper Methods ===============================
 """
 Helper Method used to get all data from request string.
 """
@@ -15,6 +16,44 @@ def RetrieveData(request):
   data = json.loads(jsonString)
   return data
 
+"""
+Helper to Extract Synset from canon object.
+"""
+def ParseSynset(canon):
+  if len(canon) == 0:
+    return None
+  return Synset(canon[0]['synset_name'], canon[0]['synset_definition'])
+
+"""
+Helper to parse a Graph object from API data.
+"""
+def ParseGraph(data, image):
+  objects = []
+  object_map = {}
+  relationships = []
+  attributes = []
+  # Create the Objects
+  for obj in data['bounding_boxes']:
+    names = []
+    synsets = []
+    for s in obj['boxed_objects']:
+      names.append(s['name'])
+      synsets.append(ParseSynset(s['object_canon']))
+      object_ = Object(obj['id'], obj['x'], obj['y'], obj['width'], obj['height'], names, synsets)
+      object_map[obj['id']] = object_
+    objects.append(object_)
+  # Create the Relationships
+  for rel in data['relationships']:
+    relationships.append(Relationship(rel['id'], object_map[rel['subject']], \
+        rel['predicate'], object_map[rel['object']], ParseSynset(rel['relationship_canon'])))
+  # Create the Attributes
+  for atr in data['attributes']:
+    attributes.append(Attribute(atr['id'], object_map[atr['subject']], \
+        atr['attribute'], ParseSynset(atr['attribute_canon'])))
+  return Graph(image, objects, relationships, attributes)
+
+
+#=================== API Calls =====================================
 """
 Get all Image ids.
 """
@@ -71,8 +110,28 @@ def GetRegionDescriptionsOfImage(id=61512):
     return None
   regions = []
   for d in data:
-    regions.append(Region(image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
+    regions.append(Region(d['id'], image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
   return regions
+
+"""
+Get Region Graph of a particular Region in an image.
+"""
+def GetRegionGraphOfRegion(image_id=61512, region_id=1):
+  image = GetImageData(id=image_id)
+  data = RetrieveData('/api/v0/images/' + str(image_id) + '/regions/' + str(region_id))
+  if 'detail' in data and data['detail'] == 'Not found.':
+    return None
+  return ParseGraph(data, image)
+
+"""
+Get Scene Graph of an image.
+"""
+def GetSceneGraphOfImage(id=61512):
+  image = GetImageData(id=id)
+  data = RetrieveData('/api/v0/images/' + str(id) + '/graph')
+  if 'detail' in data and data['detail'] == 'Not found.':
+    return None
+  return ParseGraph(data, image)
 
 """
 Gets all the QA from the dataset.
