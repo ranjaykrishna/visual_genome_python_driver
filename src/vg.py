@@ -135,25 +135,31 @@ def GetSceneGraphOfImage(id=61512):
 
 """
 Gets all the QA from the dataset.
+qtotal    int       total number of QAs to return. Set to None if all QAs should be returned
 """
-def GetAllQAs():
+def GetAllQAs(qtotal=100):
   page = 1
   next = '/api/v0/qa/all?page=' + str(page)
   qas = []
+  image_map = {}
   while True:
     data = RetrieveData(next)
     for d in data['results']:
-    	qos = None
-    	aos = None
-    	if 'question_objects' in d:
-    		qos = []
-    		for qo in d['question_objects']:
-    			qos.append(QAObject(qo['entity_idx_start'],qo['entity_idx_end'],qo['entity_name'],qo['synset_name'],qo['synset_definition']))
-    	if 'answer_objects' in d:
-    		aos = []
-    		for ao in d['answer_objects']:
-    			aos.append(QAObject(ao['entity_idx_start'],ao['entity_idx_end'],ao['entity_name'],ao['synset_name'],ao['synset_definition']))
-    	qas.append(QA(d['id'],d['image'],d['question'],d['answer'], qos, aos))
+      if d['image'] not in image_map:
+        image_map[d['image']] = GetImageData(id=d['image'])
+      qos = []
+      aos = []
+      if 'question_objects' in d:
+        for qo in d['question_objects']:
+          synset = Synset(qo['synset_name'], qo['synset_definition'])
+          qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
+      if 'answer_objects' in d:
+        for ao in d['answer_objects']:
+          synset = Synset(o['synset_name'], ao['synset_definition'])
+          aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
+      qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
+      if qtotal is not None and len(qas) > qtotal:
+        return qas
     if data['next'] is None:
       break
     page += 1
@@ -162,57 +168,66 @@ def GetAllQAs():
 
 """
 Get all QA's of a particular type - example, 'why'
+qtype     string    possible values: what, where, when, why, who, how.
+qtotal    int       total number of QAs to return. Set to None if all QAs should be returned
 """
-def GetQAofType(qtype='why'):
-	page = 1
-	next = '/api/v0/qa/' + qtype + '?page=' + str(page)
-	qas = []
-	while True:
-		data = RetrieveData(next)
-		for d in data['results']:
-			qos = None
-			aos = None
-			if 'question_objects' in d:
-				qos = []
-				for qo in d['question_objects']:
-					qos.append(QAObject(qo['entity_idx_start'],qo['entity_idx_end'],qo['entity_name'],qo['synset_name'],qo['synset_definition']))
-			if 'answer_objects' in d:
-				aos = []
-				for ao in d['answer_objects']:
-					aos.append(QAObject(ao['entity_idx_start'],ao['entity_idx_end'],ao['entity_name'],ao['synset_name'],ao['synset_definition']))
-			qas.append(QA(d['id'],d['image'],d['question'],d['answer'], qos, aos))
-		if data['next'] is None:
-			break
-		page += 1
-		next = '/api/v0/qa/' + qtype + '?page=' + str(page)
-	return qas
+def GetQAofType(qtype='why', qtotal=100):
+  page = 1
+  next = '/api/v0/qa/' + qtype + '?page=' + str(page)
+  qas = []
+  image_map = {}
+  while True:
+    data = RetrieveData(next)
+    for d in data['results']:
+      if d['image'] not in image_map:
+        image_map[d['image']] = GetImageData(id=d['image'])
+      qos = []
+      aos = []
+      if 'question_objects' in d:
+        for qo in d['question_objects']:
+          synset = Synset(qo['synset_name'], qo['synset_definition'])
+          qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
+      if 'answer_objects' in d:
+        for ao in d['answer_objects']:
+          synset = Synset(o['synset_name'], ao['synset_definition'])
+          aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
+      qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
+      if qtotal is not None and len(qas) > qtotal:
+        return qas
+    if data['next'] is None:
+      break
+    page += 1
+    next = '/api/v0/qa/' + qtype + '?page=' + str(page)
+  return qas
 
 """
 Get all QAs for a particular image.
 """
 def GetQAofImage(id=61512):
-	page = 1
-	next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
-	qas = []
-	while True:
-		data = RetrieveData(next)
-		for d in data['results']:
-			qos = None
-			aos = None
-			if 'question_objects' in d:
-				qos = []
-				for qo in d['question_objects']:
-					qos.append(QAObject(qo['entity_idx_start'],qo['entity_idx_end'],qo['entity_name'],qo['synset_name'],qo['synset_definition']))
-			if 'answer_objects' in d:
-				aos = []
-				for ao in d['answer_objects']:
-					aos.append(QAObject(ao['entity_idx_start'],ao['entity_idx_end'],ao['entity_name'],ao['synset_name'],ao['synset_definition']))
-			qas.append(QA(d['id'],d['image'],d['question'],d['answer'], qos, aos))
-		if data['next'] is None:
-			break
-		page += 1
-		next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
-	return qas
-
+  page = 1
+  next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
+  qas = []
+  image_map = {}
+  while True:
+    data = RetrieveData(next)
+    for d in data['results']:
+      if d['image'] not in image_map:
+        image_map[d['image']] = GetImageData(id=d['image'])
+      qos = []
+      aos = []
+      if 'question_objects' in d:
+        for qo in d['question_objects']:
+          synset = Synset(qo['synset_name'], qo['synset_definition'])
+          qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
+      if 'answer_objects' in d:
+        for ao in d['answer_objects']:
+          synset = Synset(o['synset_name'], ao['synset_definition'])
+          aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
+      qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
+    if data['next'] is None:
+      break
+    page += 1
+    next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
+  return qas
 
 

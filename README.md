@@ -89,7 +89,7 @@ Now, let's get the entire scene graph of an image. Each scene graph has three co
 ```
 
 #### Get Question Answers for an image
-Let's now get all the Question Answers for one image. Each Question Answer object contains the id of the question-answer pair, the id of image accessed, the question and the answer string, as well as the list of question objects and answer objects identified by the qa pair. We will extract the QAs for image 61512 and show all attributes of one such QA.
+Let's now get all the Question Answers for one image. Each Question Answer object contains the id of the question-answer pair, the id of image, the question and the answer string, as well as the list of question objects and answer objects identified and canonicalized in the qa pair. We will extract the QAs for image 61512 and show all attributes of one such QA.
 
 ```python
 > # First extract the QAs for this image
@@ -101,16 +101,31 @@ id: 991154, image: 61512, question: What color is the keyboard?, answer: Black.
 >
 > # Now let's print out the question objects of the QA
 > print qas[0].q_objects
-None
-
+[]
 ``` 
 `GetQAofImage` returns an array of `QA` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
 
 #### Get all Questions Answers in the dataset
-TODO
+We also have a function that allows you to get all the 1.7 million QAs in the Visual Genome dataset. If you do not want to get all the data, you can also specify how many QAs you want the function to return using the parameter `qtotal`. So if `qtotal = 10`, you will get back 10 QAs.
+
+```python
+> # Let's get only 10 QAs and print out the first QA.
+> qas = vg.GetAllQAs(qtotal=10)
+> print qas[0]
+id: 133103, image: 1159944, question: What is tall with many windows?, answer: Buildings.
+```
+
+To get all the QAs, set qtotal to None.
 
 #### Get one type of Questions Answers from  the entire dataset
-TODO
+You might be interested in only collecting `why` questions. To query for a particular type of question, set `qtype` to `what`, `who`, `why`, `where`, `when`, `how`.
+
+```python
+> # Let's get the first 10 why QAs and print the first one.
+> qas = GetQAofType(qtotal=5)
+> print qas[0]
+id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an event.
+```
 
 ### License
 MIT License copyright Ranjay Krishna

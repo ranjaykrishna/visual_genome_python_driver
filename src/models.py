@@ -146,7 +146,10 @@ class QA:
 
   def __str__(self):
     return 'id: %d, image: %d, question: %s, answer: %s' \
-        % (self.id, self.image, self.question, self.answer)
+        % (self.id, self.image.id, self.question, self.answer)
+
+  def __repr__(self):
+    return str(self)
 
 """
 Question Answer Objects are localized in the image and refer to a part 
@@ -158,12 +161,14 @@ of the question text or the answer text.
   synset_definition  string
 """
 class QAObject:
-  def __init__(self, start_idx, end_idx, name, synset_name, synset_definition):
+  def __init__(self, start_idx, end_idx, name, synset):
     self.start_idx = start_idx
     self.end_idx = end_idx
     self.name = name
-    self.synset_name = synset_name
-    self.synset_definition = synset_definition
+    self.synset = synset
+
+  def __repr__(self):
+    return str(self)
 
 """
 Wordnet Synsets.
