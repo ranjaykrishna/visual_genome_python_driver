@@ -89,7 +89,22 @@ Now, let's get the entire scene graph of an image. Each scene graph has three co
 ```
 
 #### Get Question Answers for an image
-TODO
+Let's now get all the Question Answers for one image. Each Question Answer object contains the id of the question-answer pair, the id of image accessed, the question and the answer string, as well as the list of question objects and answer objects identified by the qa pair. We will extract the QAs for image 61512 and show all attributes of one such QA.
+
+```python
+> # First extract the QAs for this image
+> qas = vg.GetQAofImage(id=61512)
+>
+> # First print out some core information of the QA
+> print qas[0]
+id: 991154, image: 61512, question: What color is the keyboard?, answer: Black.
+>
+> # Now let's print out the question objects of the QA
+> print qas[0].q_objects
+None
+
+``` 
+`GetQAofImage` returns an array of `QA` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
 
 #### Get all Questions Answers in the dataset
 TODO

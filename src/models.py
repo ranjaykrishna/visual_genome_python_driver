@@ -144,6 +144,10 @@ class QA:
     self.q_objects = question_objects
     self.a_objects = answer_objects
 
+  def __str__(self):
+    return 'id: %d, image: %d, question: %s, answer: %s' \
+        % (self.id, self.image, self.question, self.answer)
+
 """
 Question Answer Objects are localized in the image and refer to a part 
 of the question text or the answer text.
