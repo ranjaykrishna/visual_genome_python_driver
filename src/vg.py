@@ -137,17 +137,80 @@ def GetSceneGraphOfImage(id=61512):
 Gets all the QA from the dataset.
 """
 def GetAllQAs():
-  pass
+  page = 1
+  next = '/api/v0/qa/all?page=' + str(page)
+  qas = []
+  while True:
+    data = RetrieveData(next)
+    for d in data['results']:
+    	qos = None
+    	aos = None
+    	if 'question_objects' in d:
+    		qos = []
+    		for qo in d['question_objects']:
+    			qos.append(QAObject(qo['entity_idx_start'],qo['entity_idx_end'],qo['entity_name'],qo['synset_name'],qo['synset_definition']))
+    	if 'answer_objects' in d:
+    		aos = []
+    		for ao in d['answer_objects']:
+    			aos.append(QAObject(ao['entity_idx_start'],ao['entity_idx_end'],ao['entity_name'],ao['synset_name'],ao['synset_definition']))
+    	qas.append(QA(d['id'],d['image'],d['question'],d['answer'], qos, aos))
+    if data['next'] is None:
+      break
+    page += 1
+    next = '/api/v0/qa/all?page=' + str(page)
+  return qas
 
 """
 Get all QA's of a particular type - example, 'why'
 """
 def GetQAofType(qtype='why'):
-  pass
+	page = 1
+	next = '/api/v0/qa/' + qtype + '?page=' + str(page)
+	qas = []
+	while True:
+		data = RetrieveData(next)
+		for d in data['results']:
+			qos = None
+			aos = None
+			if 'question_objects' in d:
+				qos = []
+				for qo in d['question_objects']:
+					qos.append(QAObject(qo['entity_idx_start'],qo['entity_idx_end'],qo['entity_name'],qo['synset_name'],qo['synset_definition']))
+			if 'answer_objects' in d:
+				aos = []
+				for ao in d['answer_objects']:
+					aos.append(QAObject(ao['entity_idx_start'],ao['entity_idx_end'],ao['entity_name'],ao['synset_name'],ao['synset_definition']))
+			qas.append(QA(d['id'],d['image'],d['question'],d['answer'], qos, aos))
+		if data['next'] is None:
+			break
+		page += 1
+		next = '/api/v0/qa/' + qtype + '?page=' + str(page)
+	return qas
 
 """
 Get all QAs for a particular image.
 """
 def GetQAofImage(id=61512):
-  pass
+	page = 1
+	next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
+	qas = []
+	while True:
+		data = RetrieveData(next)
+		for d in data['results']:
+			qos = None
+			aos = None
+			if 'question_objects' in d:
+				qos = []
+				for qo in d['question_objects']:
+					qos.append(QAObject(qo['entity_idx_start'],qo['entity_idx_end'],qo['entity_name'],qo['synset_name'],qo['synset_definition']))
+			if 'answer_objects' in d:
+				aos = []
+				for ao in d['answer_objects']:
+					aos.append(QAObject(ao['entity_idx_start'],ao['entity_idx_end'],ao['entity_name'],ao['synset_name'],ao['synset_definition']))
+			qas.append(QA(d['id'],d['image'],d['question'],d['answer'], qos, aos))
+		if data['next'] is None:
+			break
+		page += 1
+		next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
+	return qas
 
