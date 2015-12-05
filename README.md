@@ -122,7 +122,7 @@ You might be interested in only collecting `why` questions. To query for a parti
 
 ```python
 > # Let's get the first 10 why QAs and print the first one.
-> qas = GetQAofType(qtotal=5)
+> qas = GetQAofType(qtotal=10)
 > print qas[0]
 id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an event.
 ```
