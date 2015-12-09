@@ -1,59 +1,9 @@
-import httplib
-import json
 from models import Image, Object, Attribute, Relationship
 from models import Region, Graph, QA, QAObject, Synset
+import httplib
+import json
+import utils
 
-#=================== Helper Methods ===============================
-"""
-Helper Method used to get all data from request string.
-"""
-def RetrieveData(request):
-  connection = httplib.HTTPSConnection("visualgenome.org", '443')
-  #connection = httplib.HTTPConnection("localhost", '8000')
-  connection.request("GET", request)
-  response = connection.getresponse()
-  jsonString = response.read()
-  data = json.loads(jsonString)
-  return data
-
-"""
-Helper to Extract Synset from canon object.
-"""
-def ParseSynset(canon):
-  if len(canon) == 0:
-    return None
-  return Synset(canon[0]['synset_name'], canon[0]['synset_definition'])
-
-"""
-Helper to parse a Graph object from API data.
-"""
-def ParseGraph(data, image):
-  objects = []
-  object_map = {}
-  relationships = []
-  attributes = []
-  # Create the Objects
-  for obj in data['bounding_boxes']:
-    names = []
-    synsets = []
-    for s in obj['boxed_objects']:
-      names.append(s['name'])
-      synsets.append(ParseSynset(s['object_canon']))
-      object_ = Object(obj['id'], obj['x'], obj['y'], obj['width'], obj['height'], names, synsets)
-      object_map[obj['id']] = object_
-    objects.append(object_)
-  # Create the Relationships
-  for rel in data['relationships']:
-    relationships.append(Relationship(rel['id'], object_map[rel['subject']], \
-        rel['predicate'], object_map[rel['object']], ParseSynset(rel['relationship_canon'])))
-  # Create the Attributes
-  for atr in data['attributes']:
-    attributes.append(Attribute(atr['id'], object_map[atr['subject']], \
-        atr['attribute'], ParseSynset(atr['attribute_canon'])))
-  return Graph(image, objects, relationships, attributes)
-
-
-#=================== API Calls =====================================
 """
 Get all Image ids.
 """
@@ -62,7 +12,7 @@ def GetAllImageIds():
   next = '/api/v0/images/all?page=' + str(page)
   ids = []
   while True:
-    data = RetrieveData(next)
+    data = utils.RetrieveData(next)
     ids.extend(data['results'])
     if data['next'] is None:
       break
@@ -79,7 +29,7 @@ def GetImageIdsInRange(startIndex=0, endIndex=99):
   endPage = endIndex / idsPerPage + 1
   ids = []
   for page in range(startPage, endPage+1):
-    data = RetrieveData('/api/v0/images/all?page=' + str(page))
+    data = utils.RetrieveData('/api/v0/images/all?page=' + str(page))
     ids.extend(data['results'])
   ids = ids[startIndex % 100:]
   ids = ids[:endIndex-startIndex+1]
@@ -89,49 +39,40 @@ def GetImageIdsInRange(startIndex=0, endIndex=99):
 Get data about an image.
 """
 def GetImageData(id=61512):
-  data = RetrieveData('/api/v0/images/' + str(id))
+  data = utils.RetrieveData('/api/v0/images/' + str(id))
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  url = data['url']
-  width = data['width']
-  height = data['height']
-  coco_id = data['coco_id']
-  flickr_id = data['flickr_id']
-  image = Image(id, url, width, height, coco_id, flickr_id)
-  return image	
+  return utils.ParseImageData(data)
 
 """
 Get the region descriptions of an image.
 """
 def GetRegionDescriptionsOfImage(id=61512):
   image = GetImageData(id=id)
-  data = RetrieveData('/api/v0/images/' + str(id) + '/regions')
+  data = utils.RetrieveData('/api/v0/images/' + str(id) + '/regions')
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  regions = []
-  for d in data:
-    regions.append(Region(d['id'], image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
-  return regions
+  return utils.ParseRegionDescriptions(data)
 
 """
 Get Region Graph of a particular Region in an image.
 """
 def GetRegionGraphOfRegion(image_id=61512, region_id=1):
   image = GetImageData(id=image_id)
-  data = RetrieveData('/api/v0/images/' + str(image_id) + '/regions/' + str(region_id))
+  data = utils.RetrieveData('/api/v0/images/' + str(image_id) + '/regions/' + str(region_id))
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  return ParseGraph(data[0], image)
+  return utils.ParseGraph(data[0], image)
 
 """
 Get Scene Graph of an image.
 """
 def GetSceneGraphOfImage(id=61512):
   image = GetImageData(id=id)
-  data = RetrieveData('/api/v0/images/' + str(id) + '/graph')
+  data = utils.RetrieveData('/api/v0/images/' + str(id) + '/graph')
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  return ParseGraph(data, image)
+  return utils.ParseGraph(data, image)
 
 """
 Gets all the QA from the dataset.
@@ -143,7 +84,7 @@ def GetAllQAs(qtotal=100):
   qas = []
   image_map = {}
   while True:
-    data = RetrieveData(next)
+    data = utils.RetrieveData(next)
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
@@ -177,7 +118,7 @@ def GetQAofType(qtype='why', qtotal=100):
   qas = []
   image_map = {}
   while True:
-    data = RetrieveData(next)
+    data = utils.RetrieveData(next)
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
@@ -209,7 +150,7 @@ def GetQAofImage(id=61512):
   qas = []
   image_map = {}
   while True:
-    data = RetrieveData(next)
+    data = utils.RetrieveData(next)
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])

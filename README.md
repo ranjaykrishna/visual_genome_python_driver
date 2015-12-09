@@ -5,8 +5,8 @@ A python wrapper for the [Visual Genome API](http://visualgenome.org/api/v0/). V
 All the data in Visual Genome must be accessed per image. Each image is identified by a unique id. So, the first step is to get the list of all image ids in the Visual Genome dataset.
 
 ```python
-> from src import vg
-> ids = vg.GetAllImageIds()
+> from src import api
+> ids = api.GetAllImageIds()
 > print ids[0]
 1
 ```
@@ -17,7 +17,7 @@ All the data in Visual Genome must be accessed per image. Each image is identifi
 There are 108,249 images currently in the Visual Genome dataset. Instead of getting all the image ids, you might want to just get the ids of a few images. To get the ids of images 2000 to 2010, you can use the following code:
 
 ```python
-> ids = vg.GetImageIdsInRange(startIndex=2000, endIndex=2010)
+> ids = api.GetImageIdsInRange(startIndex=2000, endIndex=2010)
 > print ids
 [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
 ```
@@ -26,7 +26,7 @@ There are 108,249 images currently in the Visual Genome dataset. Instead of gett
 Now, let's get basic information about an image. Specifically, for a image id, we will extract the url of the image, it's width and height (dimensions). We will also collect it's COCO and Flickr ids from their respective datasets.
 
 ```python
-> image = vg.GetImageData(id=61512)
+> image = api.GetImageData(id=61512)
 > print image
 id: 61512, coco_id: 248774, flickr_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG_100K/61512.jpg
 ```
@@ -93,7 +93,7 @@ Let's now get all the Question Answers for one image. Each Question Answer objec
 
 ```python
 > # First extract the QAs for this image
-> qas = vg.GetQAofImage(id=61512)
+> qas = api.GetQAofImage(id=61512)
 >
 > # First print out some core information of the QA
 > print qas[0]
@@ -110,7 +110,7 @@ We also have a function that allows you to get all the 1.7 million QAs in the Vi
 
 ```python
 > # Let's get only 10 QAs and print out the first QA.
-> qas = vg.GetAllQAs(qtotal=10)
+> qas = api.GetAllQAs(qtotal=10)
 > print qas[0]
 id: 133103, image: 1159944, question: What is tall with many windows?, answer: Buildings.
 ```
