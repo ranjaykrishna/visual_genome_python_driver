@@ -8,7 +8,7 @@ Get the local directory where the Visual Genome data is locally stored.
 """
 def GetDataDir():
   from os.path import dirname, realpath, join
-  dataDir = join(dirname(dirname(realpath('__file__'))), 'data')
+  dataDir = join(dirname(realpath('__file__')), 'data')
   return dataDir
 
 """
