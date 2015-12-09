@@ -1,12 +1,21 @@
+from models import Image, Object, Attribute, Relationship
+from models import Region, Graph, QA, QAObject, Synset
 import httplib
 import json
+
+"""
+Get the local directory where the Visual Genome data is locally stored.
+"""
+def GetDataDir():
+  from os.path import dirname, realpath, join
+  dataDir = join(dirname(dirname(realpath('__file__'))), 'data')
+  return dataDir
 
 """
 Helper Method used to get all data from request string.
 """
 def RetrieveData(request):
   connection = httplib.HTTPSConnection("visualgenome.org", '443')
-  #connection = httplib.HTTPConnection("localhost", '8000')
   connection.request("GET", request)
   response = connection.getresponse()
   jsonString = response.read()
@@ -58,16 +67,33 @@ def ParseImageData(data):
   height = data['height']
   coco_id = data['coco_id']
   flickr_id = data['flickr_id']
-  image = Image(id, url, width, height, coco_id, flickr_id)
+  image = Image(data['id'], url, width, height, coco_id, flickr_id)
   return image	
 
 """
 Helper to parse region descriptions.
 """
-def ParseRegionDescriptions(data):
+def ParseRegionDescriptions(data, image):
   regions = []
   for d in data:
     regions.append(Region(d['id'], image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
   return regions
 
-
+"""
+Helper to parse a list of question answers.
+"""
+def ParseQA(data, image_map):
+  qas = []
+  for d in data['results']:
+    qos = []
+    aos = []
+    if 'question_objects' in d:
+      for qo in d['question_objects']:
+        synset = Synset(qo['synset_name'], qo['synset_definition'])
+        qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
+    if 'answer_objects' in d:
+      for ao in d['answer_objects']:
+        synset = Synset(o['synset_name'], ao['synset_definition'])
+        aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
+    qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
+  return qas 

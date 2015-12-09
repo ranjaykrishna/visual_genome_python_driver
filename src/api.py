@@ -42,7 +42,8 @@ def GetImageData(id=61512):
   data = utils.RetrieveData('/api/v0/images/' + str(id))
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  return utils.ParseImageData(data)
+  image = utils.ParseImageData(data)
+  return image
 
 """
 Get the region descriptions of an image.
@@ -52,7 +53,7 @@ def GetRegionDescriptionsOfImage(id=61512):
   data = utils.RetrieveData('/api/v0/images/' + str(id) + '/regions')
   if 'detail' in data and data['detail'] == 'Not found.':
     return None
-  return utils.ParseRegionDescriptions(data)
+  return utils.ParseRegionDescriptions(data, image)
 
 """
 Get Region Graph of a particular Region in an image.
@@ -88,18 +89,8 @@ def GetAllQAs(qtotal=100):
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
-      qos = []
-      aos = []
-      if 'question_objects' in d:
-        for qo in d['question_objects']:
-          synset = Synset(qo['synset_name'], qo['synset_definition'])
-          qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
-      if 'answer_objects' in d:
-        for ao in d['answer_objects']:
-          synset = Synset(o['synset_name'], ao['synset_definition'])
-          aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
-      qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
-      if qtotal is not None and len(qas) > qtotal:
+    qas.extend(utils.ParseQA(data, image_map))
+    if qtotal is not None and len(qas) > qtotal:
         return qas
     if data['next'] is None:
       break
@@ -122,18 +113,8 @@ def GetQAofType(qtype='why', qtotal=100):
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
-      qos = []
-      aos = []
-      if 'question_objects' in d:
-        for qo in d['question_objects']:
-          synset = Synset(qo['synset_name'], qo['synset_definition'])
-          qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
-      if 'answer_objects' in d:
-        for ao in d['answer_objects']:
-          synset = Synset(o['synset_name'], ao['synset_definition'])
-          aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
-      qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
-      if qtotal is not None and len(qas) > qtotal:
+    qas.extend(utils.ParseQA(data, image_map))
+    if qtotal is not None and len(qas) > qtotal:
         return qas
     if data['next'] is None:
       break
@@ -154,21 +135,10 @@ def GetQAofImage(id=61512):
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
-      qos = []
-      aos = []
-      if 'question_objects' in d:
-        for qo in d['question_objects']:
-          synset = Synset(qo['synset_name'], qo['synset_definition'])
-          qos.append(QAObject(qo['entity_idx_start'], qo['entity_idx_end'], qo['entity_name'], synset))
-      if 'answer_objects' in d:
-        for ao in d['answer_objects']:
-          synset = Synset(o['synset_name'], ao['synset_definition'])
-          aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
-      qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
+    qas.extend(utils.ParseQA(data, image_map))
     if data['next'] is None:
       break
     page += 1
     next = '/api/v0/image/' + str(id) + '/qa?page=' + str(page)
   return qas
-
 

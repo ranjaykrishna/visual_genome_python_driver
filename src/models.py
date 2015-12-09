@@ -22,6 +22,9 @@ class Image:
     return 'id: %d, coco_id: %d, flickr_id: %d, width: %d, url: %s' \
         % (self.id, self.coco_id, self.flickr_id, self.width, self.url)
 
+  def __repr__(self):
+    return str(self)
+
 """
 Region.
   image 		       int
@@ -44,6 +47,9 @@ class Region:
   def __str__ (self):
     return 'id: %d, x: %d, y: %d, width: %d, height: %d, phrase: %s, image: %d' % \
         (self.id, self.x, self.y, self.width, self.height, self.phrase, self.image.id)
+
+  def __repr__(self):
+    return str(self)
 
 """
 Graphs contain objects, relationships and attributes
