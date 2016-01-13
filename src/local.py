@@ -12,7 +12,8 @@ def GetAllImageData(dataDir=None):
   if dataDir is None:
     dataDir = utils.GetDataDir()
   dataFile = os.path.join(dataDir, 'image_data.json')
-  return json.load(open(dataFile))
+  data = json.load(open(dataFile))
+  return [utils.ParseImageData(image) for image in data]
 
 """
 Get all region descriptions.
@@ -28,7 +29,7 @@ def GetAllRegionDescriptions(dataDir=None):
   images = json.load(open(dataFile))
   output = []
   for image in images:
-    output.append(utils.ParseRegionDescriptions(image['regions'], imageMap[image['id']))
+    output.append(utils.ParseRegionDescriptions(image['regions'], imageMap[image['id']]))
   return output
 
 

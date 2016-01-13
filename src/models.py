@@ -20,7 +20,7 @@ class Image:
 
   def __str__(self):
     return 'id: %d, coco_id: %d, flickr_id: %d, width: %d, url: %s' \
-        % (self.id, self.coco_id, self.flickr_id, self.width, self.url)
+        % (self.id, -1 if self.coco_id is None else self.coco_id, -1 if self.flickr_id is None else self.flickr_id, self.width, self.url)
 
   def __repr__(self):
     return str(self)
