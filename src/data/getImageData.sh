@@ -1,4 +1,4 @@
 #!/bin/sh
-wget https://visualgenome.org/static/data/dataset/image_data.json.zip
+wget http://visualgenome.org/static/data/dataset/image_data.json.zip
 unzip image_data.json.zip
 rm image_data.json.zip

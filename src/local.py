@@ -47,7 +47,6 @@ def GetAllQAs(dataDir=None):
   images = json.load(open(dataFile))
   output = []
   for image in images:
-    output.append(utils.ParseQA(image['qa'], imageMap))
+    output.append(utils.ParseQA(image['qas'], imageMap[image['id']]))
   return output
-
 
