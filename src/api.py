@@ -89,7 +89,7 @@ def GetAllQAs(qtotal=100):
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
-    qas.extend(utils.ParseQA(data, image_map))
+    qas.extend(utils.ParseQA(data['results'], image_map))
     if qtotal is not None and len(qas) > qtotal:
         return qas
     if data['next'] is None:
@@ -113,7 +113,7 @@ def GetQAofType(qtype='why', qtotal=100):
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
-    qas.extend(utils.ParseQA(data, image_map))
+    qas.extend(utils.ParseQA(data['results'], image_map))
     if qtotal is not None and len(qas) > qtotal:
         return qas
     if data['next'] is None:
@@ -135,7 +135,7 @@ def GetQAofImage(id=61512):
     for d in data['results']:
       if d['image'] not in image_map:
         image_map[d['image']] = GetImageData(id=d['image'])
-    qas.extend(utils.ParseQA(data, image_map))
+    qas.extend(utils.ParseQA(data['results'], image_map))
     if data['next'] is None:
       break
     page += 1

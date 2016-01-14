@@ -84,7 +84,7 @@ Helper to parse a list of question answers.
 """
 def ParseQA(data, image_map):
   qas = []
-  for d in data['results']:
+  for d in data:
     qos = []
     aos = []
     if 'question_objects' in d:

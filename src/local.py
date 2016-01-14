@@ -39,7 +39,7 @@ Get all question answers.
 def GetAllQAs(dataDir=None):
   if dataDir is None:
     dataDir = utils.GetDataDir()
-  dataFile = os.path.join(dataDir, 'region_descriptions.json')
+  dataFile = os.path.join(dataDir, 'question_answers.json')
   imageData = GetAllImageData()
   imageMap = {}
   for d in imageData:
@@ -47,6 +47,6 @@ def GetAllQAs(dataDir=None):
   images = json.load(open(dataFile))
   output = []
   for image in images:
-    output.append(utils.ParseQA(image['qas'], imageMap[image['id']]))
+    output.append(utils.ParseQA(image['qas'], imageMap))
   return output
 
