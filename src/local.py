@@ -22,7 +22,7 @@ def GetAllRegionDescriptions(dataDir=None):
   if dataDir is None:
     dataDir = utils.GetDataDir()
   dataFile = os.path.join(dataDir, 'region_descriptions.json')
-  imageData = GetAllImageData()
+  imageData = GetAllImageData(dataDir)
   imageMap = {}
   for d in imageData:
     imageMap[d.id] = d
@@ -40,7 +40,7 @@ def GetAllQAs(dataDir=None):
   if dataDir is None:
     dataDir = utils.GetDataDir()
   dataFile = os.path.join(dataDir, 'question_answers.json')
-  imageData = GetAllImageData()
+  imageData = GetAllImageData(dataDir)
   imageMap = {}
   for d in imageData:
     imageMap[d.id] = d
