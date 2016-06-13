@@ -117,15 +117,14 @@ def SaveById(dataDir='data/', imageDataDir='data/by-id/'):
       ifname = imageDataDir + str(iid) + '.json'
 
       if os.path.exists(ifname):
-        fi = open(ifname, 'a')
-        data = json.load(fi)
+        with open(ifname, 'r') as f:
+          data = json.load(f)
       else:
-        fi = open(ifname, 'w')
         data = {'id' : iid}
 
       data[fname] = item[fname]
-      json.dump(data, fi)
-      fi.close()
+      with open(ifname, 'w') as f:
+        json.dump(data, f)
 
     del a
     gc.collect()
