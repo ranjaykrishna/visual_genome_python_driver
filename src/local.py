@@ -142,8 +142,7 @@ def ParseGraphLocal(data, image):
   attributes = []
   # Create the Objects
   for obj in data['objects']:
-    names.append(s['name'])
-    object_ = Object(obj['id'], obj['x'], obj['y'], obj['width'], obj['height'], names, [])
+    object_ = Object(obj['id'], obj['x'], obj['y'], obj['width'], obj['height'], obj['names'], [])
     object_map[obj['id']] = object_
     objects.append(object_)
   # Create the Relationships
