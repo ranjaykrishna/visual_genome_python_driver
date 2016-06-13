@@ -132,7 +132,12 @@ def SaveById(dataDir='data/', imageDataDir='data/by-id/'):
 """
 Modified version of `utils.ParseGraph`.
 
-  Note: synset data for objects is not provided in the downloadable .json files
+Note
+----
+- synset data for objects is not provided in the downloadable .json files, so synset
+  is not included in the loaded Object, Relationship, and Attribute objects
+- attribute json data does not give full object, only `object names` string,
+  so Attribute objects do not link to Object objects
 
 """
 def ParseGraphLocal(data, image):
@@ -147,11 +152,14 @@ def ParseGraphLocal(data, image):
     objects.append(object_)
   # Create the Relationships
   for rel in data['relationships']:
-    relationships.append(Relationship(rel['id'], object_map[rel['subject']], \
-        rel['predicate'], object_map[rel['object']], []))
+    s = object_map[rel['subject'].id]
+    o = object_map[rel['object'].id]
+
+    relationships.append(Relationship(rel['id'], s, rel['predicate'], o, []))
   # Create the Attributes
   for atr in data['attributes']:
-    attributes.append(Attribute(atr['id'], object_map[atr['subject']], \
-        atr['attribute'], []))
+    s = atr['object_names'][0]
+    for a in atr['attributes']:
+      attributes.append(Attribute(atr['id'], s, a, []))
   return Graph(image, objects, relationships, attributes)
 
