@@ -150,6 +150,28 @@ id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an
 > ./src/data/getQuestionAnswers.sh
 ```
 
+
+#### Get Scene Graphs for 200 images from local .json files
+
+```python
+> import src.local as vg
+> 
+> # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
+> # These files will take up a total ~1.1G space on disk.
+> vg.SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/')
+> 
+> # Load scene graphs in 'data/by-id', from index 0 to 200.
+> # We'll only keep scene graphs with at least 1 relationship.
+> scene_graphs = vg.GetSceneGraphs(startIndex=0, endIndex=-1, minRels=1,
+>                                  dataDir='data/', imageDataDir='data/by-id/')
+> 
+> print len(scene_graphs)
+149
+> 
+> print scene_graphs[0].objects
+[clock, street, shade, man, sneakers, headlight, car, bike, bike, sign, building, ... , street, sidewalk, trees, car, work truck]
+```
+
 ### License
 MIT License copyright Ranjay Krishna
 
