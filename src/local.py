@@ -72,7 +72,7 @@ def GetAllSceneGraphs(dataDir='data/', imageDataDir='data/by-id/'):
     image = images[image_id]
     data = json.load(open(imageDataDir + fname, 'r'))
 
-    scene_graph = utils.ParseGraph(data, image)
+    scene_graph = ParseGraphLocal(data, image)
     scene_graphs.append(scene_graph)
 
   return scene_graphs
@@ -83,10 +83,10 @@ def GetSceneGraphs(image_id, images='data/', imageDataDir='data/by-id/'):
     images = ListToDict(GetAllImageData(images))
 
   fname = str(image_id) + '.json'
-  image = images[str(image_id)]
+  image = images[image_id]
   data = json.load(open(imageDataDir + fname, 'r'))
 
-  scene_graph = utils.ParseGraph(data, image)
+  scene_graph = ParseGraphLocal(data, image)
   return scene_graph
 
 
@@ -95,7 +95,7 @@ def GetSceneGraphs(image_id, images='data/', imageDataDir='data/by-id/'):
 """
 Save a unique json file for each image id; required for GetSceneGraphs.
 
-Each json has the following info:
+Each json has the following keys:
   - 'id'
   - 'attributes'
   - 'objects'
@@ -129,7 +129,30 @@ def SaveById(dataDir='data/', imageDataDir='data/by-id/'):
     del a
     gc.collect()
 
+"""
+Modified version of `utils.ParseGraph`.
 
+  Note: synset data for objects is not provided in the downloadable .json files
 
-
+"""
+def ParseGraphLocal(data, image):
+  objects = []
+  object_map = {}
+  relationships = []
+  attributes = []
+  # Create the Objects
+  for obj in data['objects']:
+    names.append(s['name'])
+    object_ = Object(obj['id'], obj['x'], obj['y'], obj['width'], obj['height'], names, [])
+    object_map[obj['id']] = object_
+    objects.append(object_)
+  # Create the Relationships
+  for rel in data['relationships']:
+    relationships.append(Relationship(rel['id'], object_map[rel['subject']], \
+        rel['predicate'], object_map[rel['object']], []))
+  # Create the Attributes
+  for atr in data['attributes']:
+    attributes.append(Attribute(atr['id'], object_map[atr['subject']], \
+        atr['attribute'], []))
+  return Graph(image, objects, relationships, attributes)
 
