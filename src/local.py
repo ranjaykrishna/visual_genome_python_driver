@@ -58,27 +58,7 @@ Convert list of objects with `id` attribute to dictionary indexing objects by id
 def ListToDict(ls):
   return {obj.id:obj for obj in ls}
 
-
-"""
-Get all scene graphs.
-
-"""
-def GetAllSceneGraphs(dataDir='data/', imageDataDir='data/by-id/'):
-  images = ListToDict(GetAllImageData(dataDir))
-  scene_graphs = []
-
-  for fname in os.listdir(imageDataDir):
-    image_id = fname.split('.')[0]
-    image = images[image_id]
-    data = json.load(open(imageDataDir + fname, 'r'))
-
-    scene_graph = ParseGraphLocal(data, image)
-    scene_graphs.append(scene_graph)
-
-  return scene_graphs
-
-
-def GetSceneGraphs(image_id, images='data/', imageDataDir='data/by-id/'):
+def GetSceneGraph(image_id, images='data/', imageDataDir='data/by-id/'):
   if type(images) is str:
     images = ListToDict(GetAllImageData(images))
 
@@ -89,11 +69,26 @@ def GetSceneGraphs(image_id, images='data/', imageDataDir='data/by-id/'):
   scene_graph = ParseGraphLocal(data, image)
   return scene_graph
 
+"""
+Get all scene graphs.
 
-
+dataDir : directory with `image_data.json`
+imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
 
 """
-Save a unique json file for each image id; required for GetSceneGraphs.
+def GetAllSceneGraphs(dataDir='data/', imageDataDir='data/by-id/'):
+  images = ListToDict(GetAllImageData(dataDir))
+  scene_graphs = []
+
+  for fname in os.listdir(imageDataDir):
+    image_id = int(fname.split('.')[0])
+    scene_graph = GetSceneGraph(image_id, images, imageDataDir)
+    scene_graphs.append(scene_graph)
+
+  return scene_graphs
+
+"""
+Save a unique json file for each image id; required for GetSceneGraph.
 
 Each json has the following keys:
   - 'id'
@@ -102,7 +97,7 @@ Each json has the following keys:
   - 'relationships'
 
 """
-def SaveById(dataDir='data/', imageDataDir='data/by-id/'):
+def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
   import gc
   if not os.path.exists(imageDataDir): os.mkdir(imageDataDir)
 
@@ -127,7 +122,7 @@ def SaveById(dataDir='data/', imageDataDir='data/by-id/'):
         json.dump(data, f)
 
     del a
-    gc.collect()
+    gc.collect()  # clear memory
 
 """
 Modified version of `utils.ParseGraph`.
@@ -152,10 +147,11 @@ def ParseGraphLocal(data, image):
     objects.append(object_)
   # Create the Relationships
   for rel in data['relationships']:
-    s = object_map[rel['subject'].id]
-    o = object_map[rel['object'].id]
+    s = object_map[rel['subject']['id']]
+    v = rel['predicate']
+    o = object_map[rel['object']['id']]
 
-    relationships.append(Relationship(rel['id'], s, rel['predicate'], o, []))
+    relationships.append(Relationship(rel['id'], s, v, o, []))
   # Create the Attributes
   for atr in data['attributes']:
     s = atr['object_names'][0]
