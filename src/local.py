@@ -53,11 +53,13 @@ def GetAllQAs(dataDir=None):
 
 """
 Convert list of objects with `id` attribute to dictionary indexing objects by id.
-
 """
 def ListToDict(ls):
   return {obj.id:obj for obj in ls}
 
+"""
+Load a single scene graph from a .json file.
+"""
 def GetSceneGraph(image_id, images='data/', imageDataDir='data/by-id/'):
   if type(images) is str:
     images = ListToDict(GetAllImageData(images))
@@ -70,11 +72,7 @@ def GetSceneGraph(image_id, images='data/', imageDataDir='data/by-id/'):
   return scene_graph
 
 """
-Get all scene graphs.
-
-dataDir : directory with `image_data.json`
-imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
-
+Get all scene graphs (see `SaveSceneGraphsById`).
 """
 def GetAllSceneGraphs(dataDir='data/', imageDataDir='data/by-id/'):
   images = ListToDict(GetAllImageData(dataDir))
@@ -88,14 +86,19 @@ def GetAllSceneGraphs(dataDir='data/', imageDataDir='data/by-id/'):
   return scene_graphs
 
 """
-Save a unique json file for each image id; required for GetSceneGraph.
+Save a separate .json file for each image id in `imageDataDir`.
 
-Each json has the following keys:
-  - 'id'
-  - 'attributes'
-  - 'objects'
-  - 'relationships'
+Required for `GetSceneGraphs`, which loads all scene graph info for 
+a subset of all scene graphs.
 
+`dataDir` is assumed to contain `objects.json`, `attributes.json`, 
+and `relationships.json`.
+
+Each output .json has the following keys:
+  - "id"
+  - "attributes"
+  - "objects"
+  - "relationships"
 """
 def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
   import gc
@@ -110,13 +113,11 @@ def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
     for item in a:
       iid = item['id']
       ifname = imageDataDir + str(iid) + '.json'
-
       if os.path.exists(ifname):
         with open(ifname, 'r') as f:
           data = json.load(f)
       else:
         data = {'id' : iid}
-
       data[fname] = item[fname]
       with open(ifname, 'w') as f:
         json.dump(data, f)
@@ -133,29 +134,26 @@ Note
   is not included in the loaded Object, Relationship, and Attribute objects
 - attribute json data does not give full object, only `object names` string,
   so Attribute objects do not link to Object objects
-
 """
 def ParseGraphLocal(data, image):
   objects = []
   object_map = {}
   relationships = []
   attributes = []
-  # Create the Objects
+  
   for obj in data['objects']:
     object_ = Object(obj['id'], obj['x'], obj['y'], obj['w'], obj['h'], obj['names'], [])
     object_map[obj['id']] = object_
     objects.append(object_)
-  # Create the Relationships
+    
   for rel in data['relationships']:
     s = object_map[rel['subject']['id']]
     v = rel['predicate']
     o = object_map[rel['object']['id']]
-
     relationships.append(Relationship(rel['id'], s, v, o, []))
-  # Create the Attributes
+    
   for atr in data['attributes']:
     s = atr['object_names'][0]
     for a in atr['attributes']:
       attributes.append(Attribute(atr['id'], s, a, []))
   return Graph(image, objects, relationships, attributes)
-
