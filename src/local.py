@@ -100,11 +100,13 @@ def GetSceneGraphs(startIndex=0, endIndex=-1,
 """
 Save a separate .json file for each image id in `imageDataDir`.
 
-Required for `GetSceneGraphs`, which loads all scene graph info for 
-a subset of all scene graphs.
-
-`dataDir` is assumed to contain `objects.json`, `attributes.json`, 
-and `relationships.json`.
+Notes
+-----
+- Required for `GetSceneGraphs`, which loads all scene graph info for 
+  a subset of all scene graphs.
+- `imageDataDir` will fill about 1.1G of space on disk
+- `dataDir` is assumed to contain `objects.json`, `attributes.json`, 
+and `relationships.json`
 
 Each output .json has the following keys:
   - "id"
