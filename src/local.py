@@ -79,7 +79,7 @@ dataDir : directory with `image_data.json`
 imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
 minRels, maxRels: only get scene graphs with at least / less than this number of relationships
 """
-def GetSceneGraphs(startIndex=0, endIndex=-1,
+def GetSceneGraphs(startIndex=0, endIndex=-1, 
                    dataDir='data/', imageDataDir='data/by-id/',
                    minRels=1, maxRels=100):
   images = ListToDict(GetAllImageData(dataDir))
@@ -106,7 +106,7 @@ Notes
   a subset of all scene graphs.
 - `imageDataDir` will fill about 1.1G of space on disk
 - `dataDir` is assumed to contain `objects.json`, `attributes.json`,
-and `relationships.json`
+  and `relationships.json`
 
 Each output .json has the following keys:
   - "id"
@@ -166,7 +166,6 @@ def ParseGraphLocal(data, image):
   object_map = {}
   relationships = []
   attributes = []
-
   for obj in data['objects']:
     object_map, o_ = MapObject(object_map, obj)
     objects.append(o_)
@@ -175,7 +174,6 @@ def ParseGraphLocal(data, image):
     v = rel['predicate']
     object_map, o = MapObject(object_map, rel['object'])
     relationships.append(Relationship(rel['id'], s, v, o, []))
-
   for atr in data['attributes']:
     s = atr['object_names'][0]
     for a in atr['attributes']:
