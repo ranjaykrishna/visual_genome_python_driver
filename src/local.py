@@ -70,20 +70,29 @@ def GetSceneGraph(image_id, images='data/', imageDataDir='data/by-id/'):
   return scene_graph
 
 """
-Get all scene graphs.
+Get scene graphs given locally stored .json files; requires `SaveSceneGraphsById`.
 
+startIndex, endIndex : get scene graphs listed by image, from startIndex through endIndex
 dataDir : directory with `image_data.json`
 imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
+minRels, maxRels: only get scene graphs with at least / less than this number of relationships
 
 """
-def GetAllSceneGraphs(dataDir='data/', imageDataDir='data/by-id/'):
+def GetSceneGraphs(startIndex=0, endIndex=-1, 
+                   dataDir='data/', imageDataDir='data/by-id/',
+                   minRels=1, maxRels=100):
   images = ListToDict(GetAllImageData(dataDir))
   scene_graphs = []
 
-  for fname in os.listdir(imageDataDir):
+  img_fnames = os.listdir(imageDataDir)
+  if (endIndex < 1): endIndex = len(img_fnames)
+
+  for fname in img_fnames[startIndex : endIndex]:
     image_id = int(fname.split('.')[0])
     scene_graph = GetSceneGraph(image_id, images, imageDataDir)
-    scene_graphs.append(scene_graph)
+    n_rels = len(scene_graph.relationships) 
+    if (minRels <= n_rels <= maxRels):
+      scene_graphs.append(scene_graph)
 
   return scene_graphs
 
@@ -115,7 +124,7 @@ def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
         with open(ifname, 'r') as f:
           data = json.load(f)
       else:
-        data = {'id' : iid}
+        data = {'id':iid}
 
       data[fname] = item[fname]
       with open(ifname, 'w') as f:
@@ -123,6 +132,18 @@ def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
 
     del a
     gc.collect()  # clear memory
+
+
+def MapObject(object_map, obj):
+  oid = obj['id']
+  if oid in object_map:
+    object_ = object_map[obj['id']]
+  else:
+    names = obj['names'] if 'names' in obj else [obj['name']]
+    object_ = Object(obj['id'], obj['x'], obj['y'], obj['w'], obj['h'], names, [])
+    object_map[obj['id']] = object_
+  return object_map, object_
+
 
 """
 Modified version of `utils.ParseGraph`.
@@ -142,15 +163,13 @@ def ParseGraphLocal(data, image):
   attributes = []
   # Create the Objects
   for obj in data['objects']:
-    object_ = Object(obj['id'], obj['x'], obj['y'], obj['w'], obj['h'], obj['names'], [])
-    object_map[obj['id']] = object_
-    objects.append(object_)
+    object_map, o_ = MapObject(object_map, obj) 
+    objects.append(o_)
   # Create the Relationships
   for rel in data['relationships']:
-    s = object_map[rel['subject']['id']]
+    object_map, s = MapObject(object_map, rel['subject'])
     v = rel['predicate']
-    o = object_map[rel['object']['id']]
-
+    object_map, o = MapObject(object_map, rel['object'])
     relationships.append(Relationship(rel['id'], s, v, o, []))
   # Create the Attributes
   for atr in data['attributes']:
