@@ -156,7 +156,8 @@ id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an
 ```python
 > import src.local as vg
 > 
-> # Convert full .json files to image-specific .jsons, save these to 'data/by-id'
+> # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
+> # These files will take up a total ~1.1G space on disk.
 > vg.SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/')
 > 
 > # Load scene graphs in 'data/by-id', from index 0 to 200.
