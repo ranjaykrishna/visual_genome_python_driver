@@ -179,3 +179,79 @@ def ParseGraphLocal(data, image):
     for a in atr['attributes']:
       attributes.append(Attribute(atr['id'], s, a, []))
   return Graph(image, objects, relationships, attributes)
+
+
+
+
+
+
+
+    
+
+def fix_words(sg, obj_words, rel_words, obj_filter, rel_filter):
+    fix = lambda s: s.lower().strip().replace(' ','_')
+    rename = lambda w, d: d[fix(w)] if fix(w) in d else fix(w)
+
+    for j, r in enumerate(sg.relationships):
+        s = rename(r.subject.names[0], obj_words)
+        v = rename(r.predicate,        rel_words)
+        o = rename(r.object.names[0],  obj_words)
+        if (s not in obj_filter) or (v not in rel_filter) or (o not in obj_filter):
+            sg.relationships[j] = None
+        else:
+            sg.relationships[j].subject.names[0] = s
+            sg.relationships[j].predicate        = v
+            sg.relationships[j].object.names[0]  = o
+    sg.relationships = [r for r in sg.relationships if r is not None]
+
+    for j, o in enumerate(sg.objects):
+        o_ = rename(o.names[0], [])
+        if o_ not in obj_filter:
+            sg.objects[j] = None
+        else:
+            sg.objects[j].names[0] = o_
+    sg.objects = [o for o in sg.objects if o is not None]
+
+    if len(sg.objects) == 0 or len(sg.relationships) == 0:
+        del sg
+        return []
+    else:
+        return [sg]
+
+
+"""
+Get scene graphs given locally stored .json files; requires `SaveSceneGraphsById`.
+
+startIndex, endIndex : get scene graphs listed by image, from startIndex through endIndex
+dataDir : directory with `image_data.json`
+imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
+minRels, maxRels: only get scene graphs with at least / less than this number of relationships
+"""
+def GetSceneGraphsModified(startIndex=0, endIndex=-1, 
+                           dataDir='data/', imageDataDir='data/by-id/',
+                           minRels=1, maxRels=100,
+                           oword_fname='data/pk/obj_words.pk', rword_fname='data/pk/rel_words.pk', 
+                           ofilter_fname='data/pk/obj_counts.pk', rfilter_fname='data/pk/rel_counts.pk'):
+  images = ListToDict(GetAllImageData(dataDir))
+  scene_graphs = []
+
+  img_fnames = os.listdir(imageDataDir)
+  if (endIndex < 1): endIndex = len(img_fnames)
+
+  import pickle
+  obj_words = pickle.load(open(oword_fname,'r'))
+  rel_words = pickle.load(open(rword_fname,'r'))
+  obj_filter = pickle.load(open(ofilter_fname,'r'))
+  rel_filter = pickle.load(open(rfilter_fname,'r'))
+
+  for fname in img_fnames[startIndex : endIndex]:
+    image_id = int(fname.split('.')[0])
+    scene_graph = GetSceneGraph(image_id, images, imageDataDir)
+    n_rels = len(scene_graph.relationships)
+    if (minRels <= n_rels <= maxRels):
+      scene_graphs += fix_words(scene_graph, obj_words, rel_words, obj_filter, rel_filter)
+
+  return scene_graphs
+
+
+
