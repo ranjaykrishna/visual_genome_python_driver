@@ -47,7 +47,7 @@ Now, let's get some exciting data: dense captions of an image. In Visual Genome,
 
 ```python
 # Let's get the regions for image with id=61512
-> regions = GetRegionDescriptionsOfImage(id=61512)
+> regions = api.GetRegionDescriptionsOfImage(id=61512)
 > print regions[0]
 id: 1, x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
 ```
@@ -60,7 +60,7 @@ Let's get the region graph of the Region we printed out above. Region Graphs are
 
 ```python
 # Remember that the region desription is 'A brown, sleek horse with a bridle'.
-> graph = GetSceneGraphOfImage()
+> graph = api.GetSceneGraphOfImage()
 > print graph.objects
 [horse]
 >
