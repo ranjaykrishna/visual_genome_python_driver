@@ -79,7 +79,7 @@ dataDir : directory with `image_data.json`
 imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
 minRels, maxRels: only get scene graphs with at least / less than this number of relationships
 """
-def GetSceneGraphs(startIndex=0, endIndex=-1, 
+def GetSceneGraphs(startIndex=0, endIndex=-1,
                    dataDir='data/', imageDataDir='data/by-id/',
                    minRels=1, maxRels=100):
   images = ListToDict(GetAllImageData(dataDir))
@@ -185,8 +185,11 @@ def ParseGraphLocal(data, image):
 
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# Fix words, prune bad objs/rels; filter words using dicts in `GetSceneGraphsModified`
+# ----------------------------------------------------------------------------------------------------------------------
 
-    
+
 
 def fix_words(sg, obj_words, rel_words, obj_filter, rel_filter):
     fix = lambda s: s.lower().strip().replace(' ','_')
@@ -227,10 +230,10 @@ dataDir : directory with `image_data.json`
 imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
 minRels, maxRels: only get scene graphs with at least / less than this number of relationships
 """
-def GetSceneGraphsModified(startIndex=0, endIndex=-1, 
+def GetSceneGraphsModified(startIndex=0, endIndex=-1,
                            dataDir='data/', imageDataDir='data/by-id/',
                            minRels=1, maxRels=100,
-                           oword_fname='data/pk/obj_words.pk', rword_fname='data/pk/rel_words.pk', 
+                           oword_fname='data/pk/obj_words.pk', rword_fname='data/pk/rel_words.pk',
                            ofilter_fname='data/pk/obj_counts.pk', rfilter_fname='data/pk/rel_counts.pk'):
   images = ListToDict(GetAllImageData(dataDir))
   scene_graphs = []
@@ -254,4 +257,43 @@ def GetSceneGraphsModified(startIndex=0, endIndex=-1,
   return scene_graphs
 
 
+# ----------------------------------------------------------------------------------------------------------------------
+# For loading VRD dataset
+# ----------------------------------------------------------------------------------------------------------------------
 
+
+
+import simplejson
+def GetSceneGraphsVRD(json_file='data/vrd/test.json', minRels=1, maxRels=100):
+  scene_graphs = []
+  with open(json_file,'r') as f:
+    D = simplejson.load(f)
+
+  scene_graphs = [ParseGraphVRD(d) for d in D]
+  return scene_graphs
+
+
+def ParseGraphVRD(d):
+  image = Image(data['photo_id'], data['filename'], data['width'], data['height'], '', '')
+
+  id2obj = {}
+  objs = []
+  rels = []
+  atrs = []
+
+  for i,o in enumerate(d['objects']):
+    b = o['bbox']
+    obj = Object(i, b['x'], b['y'], b['w'], b['h'], o['names'], [])
+    id2obj[i] = obj
+    objs.append(obj)
+
+    for j,a in enumerate(data['attributes']):
+      atrs.append(Attribute(j, obj, a['attribute'], []))
+
+  for i,r in enumerate(data['relationships']):
+    s = id2obj[r['objects'][0]]
+    o = id2obj[r['objects'][1]]
+    v = r['relationship']
+    rels.append(Relationship(i, s, v, o, []))
+
+  return Graph(image, objs, relationships, atrs)
