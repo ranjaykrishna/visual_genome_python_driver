@@ -287,7 +287,7 @@ def ParseGraphVRD(d):
     id2obj[i] = obj
     objs.append(obj)
 
-    for j,a in enumerate(d['attributes']):
+    for j,a in enumerate(o['attributes']):
       atrs.append(Attribute(j, obj, a['attribute'], []))
 
   for i,r in enumerate(d['relationships']):
