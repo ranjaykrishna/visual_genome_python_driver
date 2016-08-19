@@ -264,7 +264,7 @@ def GetSceneGraphsModified(startIndex=0, endIndex=-1,
 
 
 import simplejson
-def GetSceneGraphsVRD(json_file='data/vrd/test.json', minRels=1, maxRels=100):
+def GetSceneGraphsVRD(json_file='data/vrd/json/test.json'):
   scene_graphs = []
   with open(json_file,'r') as f:
     D = simplejson.load(f)
@@ -274,7 +274,7 @@ def GetSceneGraphsVRD(json_file='data/vrd/test.json', minRels=1, maxRels=100):
 
 
 def ParseGraphVRD(d):
-  image = Image(data['photo_id'], data['filename'], data['width'], data['height'], '', '')
+  image = Image(d['photo_id'], d['filename'], d['width'], d['height'], '', '')
 
   id2obj = {}
   objs = []
@@ -287,10 +287,10 @@ def ParseGraphVRD(d):
     id2obj[i] = obj
     objs.append(obj)
 
-    for j,a in enumerate(data['attributes']):
+    for j,a in enumerate(d['attributes']):
       atrs.append(Attribute(j, obj, a['attribute'], []))
 
-  for i,r in enumerate(data['relationships']):
+  for i,r in enumerate(d['relationships']):
     s = id2obj[r['objects'][0]]
     o = id2obj[r['objects'][1]]
     v = r['relationship']
