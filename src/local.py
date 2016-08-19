@@ -296,4 +296,4 @@ def ParseGraphVRD(d):
     v = r['relationship']
     rels.append(Relationship(i, s, v, o, []))
 
-  return Graph(image, objs, relationships, atrs)
+  return Graph(image, objs, rels, atrs)
