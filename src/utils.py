@@ -62,13 +62,14 @@ def ParseGraph(data, image):
 Helper to parse the image data for one image.
 """
 def ParseImageData(data):
+  img_id = data['id'] if 'id' in data else data['image_id']
   url = data['url']
   width = data['width']
   height = data['height']
   coco_id = data['coco_id']
   flickr_id = data['flickr_id']
-  image = Image(data['id'], url, width, height, coco_id, flickr_id)
-  return image	
+  image = Image(img_id, url, width, height, coco_id, flickr_id)
+  return image
 
 """
 Helper to parse region descriptions.
@@ -96,4 +97,4 @@ def ParseQA(data, image_map):
         synset = Synset(o['synset_name'], ao['synset_definition'])
         aos.append(QAObject(ao['entity_idx_start'], ao['entity_idx_end'], ao['entity_name'], synset))
     qas.append(QA(d['id'], image_map[d['image']], d['question'], d['answer'], qos, aos))
-  return qas 
+  return qas

@@ -3,7 +3,7 @@ from models import Region, Graph, QA, QAObject, Synset
 import httplib
 import json
 import utils
-import os
+import os, gc
 
 """
 Get Image ids from startIndex to endIndex.
@@ -98,58 +98,23 @@ def GetSceneGraphs(startIndex=0, endIndex=-1,
   return scene_graphs
 
 """
-Save a separate .json file for each image id in `imageDataDir`.
-
-Notes
------
-- Required for `GetSceneGraphs`, which loads all scene graph info for
-  a subset of all scene graphs.
-- `imageDataDir` will fill about 1.1G of space on disk
-- `dataDir` is assumed to contain `objects.json`, `attributes.json`,
-  and `relationships.json`
-
-Each output .json has the following keys:
-  - "id"
-  - "attributes"
-  - "objects"
-  - "relationships"
+Use object ids as hashes to `src.models.Object` instances. If item not
+  in table, create new `Object`. Used when building scene graphs from json.
 """
-def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
-  import gc
-  if not os.path.exists(imageDataDir): os.mkdir(imageDataDir)
-
-  fnames = ['attributes','objects','relationships']
-  for fname in fnames:
-
-    with open(dataDir + fname + '.json', 'r') as f:
-      a = json.load(f)
-
-    for item in a:
-      iid = item['id']
-      ifname = imageDataDir + str(iid) + '.json'
-      if os.path.exists(ifname):
-        with open(ifname, 'r') as f:
-          data = json.load(f)
-      else:
-        data = {'id':iid}
-      data[fname] = item[fname]
-      with open(ifname, 'w') as f:
-        json.dump(data, f)
-
-    del a
-    gc.collect()  # clear memory
-
-
 def MapObject(object_map, obj):
-  oid = obj['id']
-  if oid in object_map:
-    object_ = object_map[obj['id']]
-  else:
-    names = obj['names'] if 'names' in obj else [obj['name']]
-    object_ = Object(obj['id'], obj['x'], obj['y'], obj['w'], obj['h'], names, [])
-    object_map[obj['id']] = object_
-  return object_map, object_
+  oid = obj['object_id']
+  obj['id'] = oid
+  del obj['object_id']
 
+  if oid in object_map:
+    object_ = object_map[oid]
+  else:
+    obj['width'] = obj['w']
+    obj['height'] = obj['h']
+    del obj['w'], obj['h']
+    object_ = Object(**obj)
+    object_map[oid] = object_
+  return object_map, object_
 
 """
 Modified version of `utils.ParseGraph`.
@@ -170,16 +135,94 @@ def ParseGraphLocal(data, image):
     object_map, o_ = MapObject(object_map, obj)
     objects.append(o_)
   for rel in data['relationships']:
-    object_map, s = MapObject(object_map, rel['subject'])
+    object_map, s = MapObject(object_map, rel['subject_id'])
     v = rel['predicate']
-    object_map, o = MapObject(object_map, rel['object'])
-    relationships.append(Relationship(rel['id'], s, v, o, []))
+    object_map, o = MapObject(object_map, rel['object_id'])
+    rid = rel['relationship_id']
+    r = Relationship(rid, s, v, o, rel['synsets'])
+    relationships.append(r)
   for atr in data['attributes']:
-    s = atr['object_names'][0]
-    for a in atr['attributes']:
-      attributes.append(Attribute(atr['id'], s, a, []))
+    # Note: current dataset provdes synsets for attribute object, but not
+    #       for attribute word, so we don't include this
+    object_map, s = MapObject(object_map, atr['object_id'])
+    aid = atr['attribute_id']
+    attributes.append(Attribute(aid, s, atr['attribute'], []))
   return Graph(image, objects, relationships, attributes)
 
+
+# Instead of using the following methods yourself, you can download
+#   .jsons segmented with these methods from:
+
+
+
+"""
+Save a separate .json file for each image id in `imageDataDir`.
+
+Notes
+-----
+- If we don't save .json's by id, `scene_graphs.json` is >6G in RAM.
+- Required for `GetSceneGraphs`, which initializes SceneGraph instances
+- `imageDataDir` will fill about 1.1G of space on disk
+- Run `AddAttrsToSceneGraphs` before `ParseGraphLocal` will work
+
+Each output .json has the following keys:
+  - "id"
+  - "attributes"
+  - "objects"
+  - "relationships"
+"""
+def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
+  if not os.path.exists(imageDataDir): os.mkdir(imageDataDir)
+
+  all_data = json.load(open(os.path.join(dataDir,'scene_graphs.json')))
+  for sg_data in all_data:
+    img_fname = str(sg_data['image_id']) + '.json'
+    with open(os.path.join(imageDataDir, img_id), 'w') as f:
+      json.dump(sg_data, f)
+
+  del all_data
+  gc.collect()  # clear memory
+
+
+
+
+
+
+
+
+
+
+
+
+
+"""
+Add attributes to scene_graph.json, since these are currently not included.
+
+This also adds a unique id to each attribute, and separates individual
+attibutes for each object (these are grouped in attributes.json).
+
+"""
+def AddAttrsToSceneGraphs(dataDir='data/'):
+  attr_data = json.load(open(os.path.join(dataDir, 'attributes.json')))
+  with open(os.path.join(dataDir, 'scene_graphs.json')) as f:
+    sg_dict = {sg['image_id']:sg for sg in json.load(f)}
+
+  id_count = 0
+  for img_attrs in attr_data:
+    attrs = []
+    for attribute in img_attrs['attributes']:
+      a = img_attrs.copy(); del a['attributes']
+      a['attribute']    = attribute
+      a['attribute_id'] = id_count
+      attrs.append(a)
+      id_count += 1
+    iid = img_attrs['image_id']
+    sg_dict[iid]['attributes'] = attrs
+
+  with open(os.path.join(dataDir, 'scene_graphs.json'), 'w') as f:
+    json.dump(sg_dict.values(), f)
+  del attr_data, sg_dict
+  gc.collect()
 
 
 
