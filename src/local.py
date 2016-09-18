@@ -81,7 +81,7 @@ minRels, maxRels: only get scene graphs with at least / less than this number of
 """
 def GetSceneGraphs(startIndex=0, endIndex=-1,
                    dataDir='data/', imageDataDir='data/by-id/',
-                   minRels=1, maxRels=100):
+                   minRels=0, maxRels=100):
   images = ListToDict(GetAllImageData(dataDir))
   scene_graphs = []
 
@@ -102,18 +102,30 @@ Use object ids as hashes to `src.models.Object` instances. If item not
   in table, create new `Object`. Used when building scene graphs from json.
 """
 def MapObject(object_map, obj):
+
   oid = obj['object_id']
   obj['id'] = oid
   del obj['object_id']
 
   if oid in object_map:
     object_ = object_map[oid]
+
   else:
-    obj['width'] = obj['w']
-    obj['height'] = obj['h']
-    del obj['w'], obj['h']
+    if 'attributes' in obj:
+      attrs = obj['attributes']
+      del obj['attributes']
+    else:
+      attrs = []
+    if 'w' in obj:
+      obj['width'] = obj['w']
+      obj['height'] = obj['h']
+      del obj['w'], obj['h']
+
     object_ = Object(**obj)
+
+    object_.attributes = attrs
     object_map[oid] = object_
+
   return object_map, object_
 
 """
@@ -123,40 +135,47 @@ Note
 ----
 - synset data for objects is not provided in the downloadable .json files, so synset
   is not included in the loaded Object, Relationship, and Attribute objects
-- attribute json data does not give full object, only `object names` string,
-  so Attribute objects do not link to Object objects
+- currently attributes are a list of strings in Object instances (see `MapObject`)
 """
+global count_miss
+count_miss = 0
 def ParseGraphLocal(data, image):
+  global count_hit
+  global count_miss
+
   objects = []
   object_map = {}
   relationships = []
-  attributes = []
   for obj in data['objects']:
     object_map, o_ = MapObject(object_map, obj)
     objects.append(o_)
   for rel in data['relationships']:
-    object_map, s = MapObject(object_map, rel['subject_id'])
-    v = rel['predicate']
-    object_map, o = MapObject(object_map, rel['object_id'])
-    rid = rel['relationship_id']
-    r = Relationship(rid, s, v, o, rel['synsets'])
-    relationships.append(r)
-  for atr in data['attributes']:
-    # Note: current dataset provdes synsets for attribute object, but not
-    #       for attribute word, so we don't include this
-    object_map, s = MapObject(object_map, atr['object_id'])
-    aid = atr['attribute_id']
-    attributes.append(Attribute(aid, s, atr['attribute'], []))
-  return Graph(image, objects, relationships, attributes)
+    if rel['subject_id'] in object_map and rel['object_id'] in object_map:
+      object_map, s = MapObject(object_map, {'object_id': rel['subject_id']})
+      v = rel['predicate']
+      object_map, o = MapObject(object_map, {'object_id': rel['object_id']})
+      rid = rel['relationship_id']
+      relationships.append(Relationship(rid, s, v, o, rel['synsets']))
+    else:
+      count_miss += 1
+    if count_miss % 10000 == 1:
+      print 'Misses: ', count_miss
+      # print 'SKIPPING   s: {}, v: {}, o: {}'.format(rel['subject_id'], rel['relationship_id'], rel['object_id'])
+  return Graph(image, objects, relationships, [])
 
 
 # Instead of using the following methods yourself, you can download
 #   .jsons segmented with these methods from:
+#   https://drive.google.com/file/d/0Bygumy5BKFtcQW9yYjhVV0xRSVU/view?usp=sharing
 
 
 
 """
 Save a separate .json file for each image id in `imageDataDir`.
+
+Instead of using the following methods yourself, you can download .jsons
+  segmented with these methods from:
+
 
 Notes
 -----
@@ -177,7 +196,7 @@ def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
   all_data = json.load(open(os.path.join(dataDir,'scene_graphs.json')))
   for sg_data in all_data:
     img_fname = str(sg_data['image_id']) + '.json'
-    with open(os.path.join(imageDataDir, img_id), 'w') as f:
+    with open(os.path.join(imageDataDir, img_fname), 'w') as f:
       json.dump(sg_data, f)
 
   del all_data
