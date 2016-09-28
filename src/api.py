@@ -1,8 +1,8 @@
-from models import Image, Object, Attribute, Relationship
-from models import Region, Graph, QA, QAObject, Synset
-import httplib
+from .models import Image, Object, Attribute, Relationship
+from .models import Region, Graph, QA, QAObject, Synset
+import http.client
 import json
-import utils
+from . import utils
 
 """
 Get all Image ids.
@@ -25,8 +25,8 @@ Get Image ids from startIndex to endIndex.
 """
 def GetImageIdsInRange(startIndex=0, endIndex=99):
   idsPerPage = 1000
-  startPage = startIndex / idsPerPage + 1
-  endPage = endIndex / idsPerPage + 1
+  startPage = startIndex // idsPerPage + 1
+  endPage = endIndex // idsPerPage + 1
   ids = []
   for page in range(startPage, endPage+1):
     data = utils.RetrieveData('/api/v0/images/all?page=' + str(page))
