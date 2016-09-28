@@ -1,8 +1,8 @@
-from models import Image, Object, Attribute, Relationship
-from models import Region, Graph, QA, QAObject, Synset
-import httplib
+from .models import Image, Object, Attribute, Relationship
+from .models import Region, Graph, QA, QAObject, Synset
+import http.client
 import json
-import utils
+from . import utils
 import os, gc
 
 """
@@ -159,7 +159,7 @@ def ParseGraphLocal(data, image):
     else:
       count_miss += 1
     if count_miss % 10000 == 1:
-      print 'Misses: ', count_miss
+      print('Misses: ', count_miss)
       # print 'SKIPPING   s: {}, v: {}, o: {}'.format(rel['subject_id'], rel['relationship_id'], rel['object_id'])
   return Graph(image, objects, relationships, [])
 
@@ -239,7 +239,7 @@ def AddAttrsToSceneGraphs(dataDir='data/'):
     sg_dict[iid]['attributes'] = attrs
 
   with open(os.path.join(dataDir, 'scene_graphs.json'), 'w') as f:
-    json.dump(sg_dict.values(), f)
+    json.dump(list(sg_dict.values()), f)
   del attr_data, sg_dict
   gc.collect()
 

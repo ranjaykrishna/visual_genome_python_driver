@@ -1,6 +1,6 @@
-from models import Image, Object, Attribute, Relationship
-from models import Region, Graph, QA, QAObject, Synset
-import httplib
+from .models import Image, Object, Attribute, Relationship
+from .models import Region, Graph, QA, QAObject, Synset
+import http.client
 import json
 
 """
@@ -15,10 +15,10 @@ def GetDataDir():
 Helper Method used to get all data from request string.
 """
 def RetrieveData(request):
-  connection = httplib.HTTPSConnection("visualgenome.org", '443')
+  connection = http.client.HTTPSConnection("visualgenome.org", '443')
   connection.request("GET", request)
   response = connection.getresponse()
-  jsonString = response.read()
+  jsonString = response.read().decode('utf-8')
   data = json.loads(jsonString)
   return data
 
