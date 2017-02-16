@@ -1,6 +1,7 @@
 from models import Image, Object, Attribute, Relationship
 from models import Region, Graph, QA, QAObject, Synset
 import httplib
+import ijson
 import json
 import utils
 import os, gc
@@ -94,7 +95,6 @@ def GetSceneGraphs(startIndex=0, endIndex=-1,
     n_rels = len(scene_graph.relationships)
     if (minRels <= n_rels <= maxRels):
       scene_graphs.append(scene_graph)
-
   return scene_graphs
 
 """
@@ -191,26 +191,34 @@ Each output .json has the following keys:
   - "relationships"
 """
 def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
-  if not os.path.exists(imageDataDir): os.mkdir(imageDataDir)
-
-  all_data = json.load(open(os.path.join(dataDir,'scene_graphs.json')))
-  for sg_data in all_data:
-    img_fname = str(sg_data['image_id']) + '.json'
-    with open(os.path.join(imageDataDir, img_fname), 'w') as f:
-      json.dump(sg_data, f)
-
-  del all_data
-  gc.collect()  # clear memory
-
-
-
-
-
-
-
-
-
-
+    if not os.path.exists(imageDataDir): os.mkdir(imageDataDir)
+    data = {
+            'relationships': ['item.regions.item', 'scene_graphs.json'],
+             'objects': ['item', 'objects.json']
+     }
+    for (graph_attribute, attr_data) in data.iteritems():
+        with open('/home/francoisp/Documents/Programmation/benchmark-data/VisualGenome/data/%s' % attr_data[1]) as regions_data:
+            current_image_id = 1
+            current_image_data = []
+            items = ijson.items(regions_data, attr_data[0])
+            for item in items:
+                if(current_image_id != item['image_id']):
+                    img_fname = str(current_image_id) + '.json'
+                    image_fpath = os.path.join(imageDataDir, img_fname)
+                    if os.path.exists(image_fpath):
+                        with open(os.path.join(imageDataDir, img_fname), 'r') as f:
+                            graph = json.load(f)
+                    else:
+                        graph = {}                    
+                    with open(os.path.join(imageDataDir, img_fname), 'w') as f:
+                        graph[graph_attribute] = current_image_data
+                        json.dump(graph, f)
+                    current_image_data = []
+                    current_image_id = item['image_id']
+                values = item[graph_attribute]
+                if(len(values) > 0):
+                    current_image_data += values
+    gc.collect()  # clear memory
 
 
 
