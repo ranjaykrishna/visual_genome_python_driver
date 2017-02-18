@@ -32,7 +32,6 @@ def GetAllRegionDescriptions(dataDir=None):
     output.append(utils.ParseRegionDescriptions(image['regions'], imageMap[image['id']]))
   return output
 
-
 """
 Get all question answers.
 """
@@ -51,38 +50,37 @@ def GetAllQAs(dataDir=None):
   return output
 
 
-"""
-Convert list of objects with `id` attribute to dictionary indexing objects by id.
-"""
-def ListToDict(ls):
-  return {obj.id:obj for obj in ls}
+# --------------------------------------------------------------------------------------------------
+# GetSceneGraphs and sub-methods
 
 """
 Load a single scene graph from a .json file.
 """
-def GetSceneGraph(image_id, images='data/', imageDataDir='data/by-id/'):
+def GetSceneGraph(image_id, images='data/', imageDataDir='data/by-id/', synsetFile='data/synsets.json'):
   if type(images) is str:
-    images = ListToDict(GetAllImageData(images))
+    # Instead of a string, we can pass this dict as the argument `images`
+    images = {img.id:img for img in GetAllImageData(images)}
 
   fname = str(image_id) + '.json'
   image = images[image_id]
   data = json.load(open(imageDataDir + fname, 'r'))
 
   scene_graph = ParseGraphLocal(data, image)
+  scene_graph = InitSynsets(scene_graph, synsetFile)
   return scene_graph
 
 """
 Get scene graphs given locally stored .json files; requires `SaveSceneGraphsById`.
 
-startIndex, endIndex : get scene graphs listed by image, from startIndex through endIndex
-dataDir : directory with `image_data.json`
-imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
-minRels, maxRels: only get scene graphs with at least / less than this number of relationships
+ startIndex, endIndex : get scene graphs listed by image, from startIndex through endIndex
+ dataDir : directory with `image_data.json` and `synsets.json`
+ imageDataDir : directory of scene graph jsons saved by image id (see `SaveSceneGraphsById`)
+ minRels, maxRels: only get scene graphs with at least / less than this number of relationships
 """
 def GetSceneGraphs(startIndex=0, endIndex=-1,
                    dataDir='data/', imageDataDir='data/by-id/',
                    minRels=0, maxRels=100):
-  images = ListToDict(GetAllImageData(dataDir))
+  images = {img.id:img for img in GetAllImageData(dataDir)}
   scene_graphs = []
 
   img_fnames = os.listdir(imageDataDir)
@@ -90,7 +88,7 @@ def GetSceneGraphs(startIndex=0, endIndex=-1,
 
   for fname in img_fnames[startIndex : endIndex]:
     image_id = int(fname.split('.')[0])
-    scene_graph = GetSceneGraph(image_id, images, imageDataDir)
+    scene_graph = GetSceneGraph(image_id, images, imageDataDir, dataDir+'synsets.json')
     n_rels = len(scene_graph.relationships)
     if (minRels <= n_rels <= maxRels):
       scene_graphs.append(scene_graph)
@@ -128,24 +126,20 @@ def MapObject(object_map, obj):
 
   return object_map, object_
 
+
 """
 Modified version of `utils.ParseGraph`.
-
-Note
-----
-- synset data for objects is not provided in the downloadable .json files, so synset
-  is not included in the loaded Object, Relationship, and Attribute objects
-- currently attributes are a list of strings in Object instances (see `MapObject`)
 """
-global count_miss
-count_miss = 0
-def ParseGraphLocal(data, image):
-  global count_hit
-  global count_miss
+global count_skips
+count_skips = [0,0]
 
+def ParseGraphLocal(data, image, verbose=False):
+  global count_skips
   objects = []
   object_map = {}
   relationships = []
+  attributes = []
+
   for obj in data['objects']:
     object_map, o_ = MapObject(object_map, obj)
     objects.append(o_)
@@ -157,36 +151,54 @@ def ParseGraphLocal(data, image):
       rid = rel['relationship_id']
       relationships.append(Relationship(rid, s, v, o, rel['synsets']))
     else:
-      count_miss += 1
-    if count_miss % 10000 == 1:
-      print 'Misses: ', count_miss
-      # print 'SKIPPING   s: {}, v: {}, o: {}'.format(rel['subject_id'], rel['relationship_id'], rel['object_id'])
-  return Graph(image, objects, relationships, [])
+      # Skip this relationship if we don't have the subject and object in 
+      #   the object_map for this scene graph. Some data is missing in this way.
+      count_skips[0] += 1
+  if 'attributes' in data:
+    for attr in data['attributes']:
+      a = attr['attribute']
+      if a['object_id'] in object_map:
+        attributes.append(Attribute(attr['attribute_id'], a['object_id'], a['names'], a['synsets']))
+      else:
+        count_skips[1] += 1
+  if verbose:
+    print 'Skipped {} rels, {} attrs total'.format(*count_skips)
+  return Graph(image, objects, relationships, attributes)
+
+"""
+Convert synsets in a scene graph from strings to Synset objects.
+"""
+def InitSynsets(scene_graph, synset_file):
+  syn_data = json.load(open(synset_file, 'r'))
+  syn_class = {s['synset_name'] : Synset(s['synset_name'], s['synset_definition']) for s in syn_data}
+
+  for obj in scene_graph.objects:
+    obj.synsets = [syn_class[sn] for sn in obj.synsets]
+  for rel in scene_graph.relationships:
+    rel.synset = [syn_class[sn] for sn in rel.synset]
+  for attr in scene_graph.attributes:
+    obj.synset = [syn_class[sn] for sn in attr.synset]
+
+  return scene_graph  
 
 
-# Instead of using the following methods yourself, you can download
-#   .jsons segmented with these methods from:
-#   https://drive.google.com/file/d/0Bygumy5BKFtcQW9yYjhVV0xRSVU/view?usp=sharing
-
-
+# --------------------------------------------------------------------------------------------------
+# This is a pre-processing step that only needs to be executed once. 
+# You can download .jsons segmented with these methods from:
+#     https://drive.google.com/file/d/0Bygumy5BKFtcQ1JrcFpyQWdaQWM
 
 """
 Save a separate .json file for each image id in `imageDataDir`.
 
-Instead of using the following methods yourself, you can download .jsons
-  segmented with these methods from:
-
-
 Notes
 -----
-- If we don't save .json's by id, `scene_graphs.json` is >6G in RAM.
-- Required for `GetSceneGraphs`, which initializes SceneGraph instances
-- `imageDataDir` will fill about 1.1G of space on disk
+- If we don't save .json's by id, `scene_graphs.json` is >6G in RAM
+- Separated .json files are ~1.1G on disk
 - Run `AddAttrsToSceneGraphs` before `ParseGraphLocal` will work
+- Attributes are only present in objects, and do not have synset info
 
 Each output .json has the following keys:
   - "id"
-  - "attributes"
   - "objects"
   - "relationships"
 """
@@ -203,23 +215,11 @@ def SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/'):
   gc.collect()  # clear memory
 
 
-
-
-
-
-
-
-
-
-
-
-
 """
-Add attributes to scene_graph.json, since these are currently not included.
+Add attributes to `scene_graph.json`, extracted from `attributes.json`.
 
 This also adds a unique id to each attribute, and separates individual
-attibutes for each object (these are grouped in attributes.json).
-
+attibutes for each object (these are grouped in `attributes.json`).
 """
 def AddAttrsToSceneGraphs(dataDir='data/'):
   attr_data = json.load(open(os.path.join(dataDir, 'attributes.json')))
@@ -244,92 +244,17 @@ def AddAttrsToSceneGraphs(dataDir='data/'):
   gc.collect()
 
 
+# --------------------------------------------------------------------------------------------------
+# For info on VRD dataset, see:  
+#   http://cs.stanford.edu/people/ranjaykrishna/vrd/
 
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# Fix words, prune bad objs/rels; filter words using dicts in `GetSceneGraphsModified`
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-
-def fix_words(sg, obj_words, rel_words, obj_filter, rel_filter):
-    fix = lambda s: s.lower().strip().replace(' ','_')
-    rename = lambda w, d: d[fix(w)] if fix(w) in d else fix(w)
-
-    for j, r in enumerate(sg.relationships):
-        s = rename(r.subject.names[0], obj_words)
-        v = rename(r.predicate,        rel_words)
-        o = rename(r.object.names[0],  obj_words)
-        if (s not in obj_filter) or (v not in rel_filter) or (o not in obj_filter):
-            sg.relationships[j] = None
-        else:
-            sg.relationships[j].subject.names[0] = s
-            sg.relationships[j].predicate        = v
-            sg.relationships[j].object.names[0]  = o
-    sg.relationships = [r for r in sg.relationships if r is not None]
-
-    for j, o in enumerate(sg.objects):
-        o_ = rename(o.names[0], [])
-        if o_ not in obj_filter:
-            sg.objects[j] = None
-        else:
-            sg.objects[j].names[0] = o_
-    sg.objects = [o for o in sg.objects if o is not None]
-
-    if len(sg.objects) == 0 or len(sg.relationships) == 0:
-        del sg
-        return []
-    else:
-        return [sg]
-
-
-"""
-Get scene graphs given locally stored .json files; requires `SaveSceneGraphsById`.
-
-startIndex, endIndex : get scene graphs listed by image, from startIndex through endIndex
-dataDir : directory with `image_data.json`
-imageDataDir : directory of scene graph jsons by image id; see `SaveSceneGraphsById`
-minRels, maxRels: only get scene graphs with at least / less than this number of relationships
-"""
-def GetSceneGraphsModified(startIndex=0, endIndex=-1,
-                           dataDir='data/', imageDataDir='data/by-id/',
-                           minRels=1, maxRels=100,
-                           oword_fname='data/pk/obj_words.pk', rword_fname='data/pk/rel_words.pk',
-                           ofilter_fname='data/pk/obj_counts.pk', rfilter_fname='data/pk/rel_counts.pk'):
-  images = ListToDict(GetAllImageData(dataDir))
-  scene_graphs = []
-
-  img_fnames = os.listdir(imageDataDir)
-  if (endIndex < 1): endIndex = len(img_fnames)
-
-  import pickle
-  obj_words = pickle.load(open(oword_fname,'r'))
-  rel_words = pickle.load(open(rword_fname,'r'))
-  obj_filter = pickle.load(open(ofilter_fname,'r'))
-  rel_filter = pickle.load(open(rfilter_fname,'r'))
-
-  for fname in img_fnames[startIndex : endIndex]:
-    image_id = int(fname.split('.')[0])
-    scene_graph = GetSceneGraph(image_id, images, imageDataDir)
-    n_rels = len(scene_graph.relationships)
-    if (minRels <= n_rels <= maxRels):
-      scene_graphs += fix_words(scene_graph, obj_words, rel_words, obj_filter, rel_filter)
-
-  return scene_graphs
-
-
-# ----------------------------------------------------------------------------------------------------------------------
-# For loading VRD dataset
-# ----------------------------------------------------------------------------------------------------------------------
-
-
-
-import simplejson
 def GetSceneGraphsVRD(json_file='data/vrd/json/test.json'):
+  """
+  Load VRD dataset into scene graph format.
+  """
   scene_graphs = []
   with open(json_file,'r') as f:
-    D = simplejson.load(f)
+    D = json.load(f)
 
   scene_graphs = [ParseGraphVRD(d) for d in D]
   return scene_graphs
@@ -359,3 +284,4 @@ def ParseGraphVRD(d):
     rels.append(Relationship(i, s, v, o, []))
 
   return Graph(image, objs, rels, atrs)
+
