@@ -76,8 +76,12 @@ Helper to parse region descriptions.
 """
 def ParseRegionDescriptions(data, image):
   regions = []
+  if data[0].has_key('region_id'):
+    region_id_key = 'region_id'
+  else:
+    region_id_key = 'id'
   for d in data:
-    regions.append(Region(d['id'], image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
+    regions.append(Region(d[region_id_key], image, d['phrase'], d['x'], d['y'], d['width'], d['height']))
   return regions
 
 """
