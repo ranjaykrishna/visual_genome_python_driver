@@ -186,3 +186,9 @@ class Synset:
     self.name = name
     self.definition = definition
 
+  def __str__(self):
+    return '{} - {}'.format(self.name, self.definition)
+
+  def __repr__(self):
+    return str(self)
+
