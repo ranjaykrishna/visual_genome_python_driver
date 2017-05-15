@@ -1,6 +1,6 @@
 
 import json
-import httplib
+import requests
 from os.path import dirname, realpath, join
 from visual_genome.models import (Image, Object, Attribute, Relationship,
                                   Region, Graph, QA, QAObject, Synset)
@@ -18,11 +18,13 @@ def retrieve_data(request):
     """
     Helper Method used to get all data from request string.
     """
-    connection = httplib.HTTPSConnection("visualgenome.org", '443')
-    connection.request("GET", request)
-    response = connection.getresponse()
-    jsonString = response.read()
-    data = json.loads(jsonString)
+    url = 'https://visualgenome.org'
+    data = requests.get(url + request).json()
+    # connection = httplib.HTTPSConnection("visualgenome.org", '443')
+    # connection.request("GET", request)
+    # response = connection.getresponse()
+    # jsonString = response.read()
+    # data = json.loads(json_string)
     return data
 
 

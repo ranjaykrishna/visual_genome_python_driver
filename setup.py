@@ -22,7 +22,7 @@ def get_description():
     return data
 
 
-# REQUIREMENTS = ['spyder>=3', 'pexpect', 'tornado', 'coloredlogs']
+REQUIREMENTS = ['requests']
 
 setup(
     name='visual_genome',
@@ -35,7 +35,7 @@ setup(
     description='A pure python wrapper for the Visual Genome API',
     # long_description=get_description(),
     packages=find_packages(exclude=['contrib', 'docs', 'tests*']),
-    # install_requires=REQUIREMENTS,
+    install_requires=REQUIREMENTS,
     include_package_data=True,
     classifiers=[
         'Development Status :: 4 - Beta',
