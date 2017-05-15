@@ -18,7 +18,7 @@ def retrieve_data(request):
     """
     Helper Method used to get all data from request string.
     """
-    url = 'https://visualgenome.org'
+    url = 'http://visualgenome.org'
     data = requests.get(url + request).json()
     # connection = httplib.HTTPSConnection("visualgenome.org", '443')
     # connection.request("GET", request)
