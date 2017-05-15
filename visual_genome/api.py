@@ -69,7 +69,7 @@ def get_region_graph_of_region(image_id=61512, region_id=1):
     return utils.parse_graph(data[0], image)
 
 
-def GetSceneGraphOfImage(id=61512):
+def get_scene_graph_of_image(id=61512):
     """
     Get Scene Graph of an image.
     """
