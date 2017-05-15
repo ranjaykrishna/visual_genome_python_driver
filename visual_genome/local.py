@@ -184,7 +184,7 @@ def parse_graph_local(data, image, verbose=False):
             else:
                 count_skips[1] += 1
     if verbose:
-        print 'Skipped {} rels, {} attrs total'.format(*count_skips)
+        print('Skipped {} rels, {} attrs total'.format(*count_skips))
     return Graph(image, objects, relationships, attributes)
 
 
