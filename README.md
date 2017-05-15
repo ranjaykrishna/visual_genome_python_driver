@@ -12,7 +12,7 @@ There are 2 ways of accessing the visual genome data.
 
 1. Use the API functions to access the data directly from our server. You will not need to keep any local data available.
 2. Download all the data and use our local methods to parse and work with the visual genome data. 
-... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/src/data).
+... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/visual_genome/data).
 
 ### The API Functions are listed below.
 
@@ -118,7 +118,7 @@ id: 991154, image: 61512, question: What color is the keyboard?, answer: Black.
 > print qas[0].q_objects
 []
 ```
-`GetQAofImage` returns an array of `QA` objects which are defined in [visual_genome/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/visual_genome/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
+`get_QA_of_image` returns an array of `QA` objects which are defined in [visual_genome/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/visual_genome/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
 
 #### Get all Questions Answers in the dataset
 We also have a function that allows you to get all the 1.7 million QAs in the Visual Genome dataset. If you do not want to get all the data, you can also specify how many QAs you want the function to return using the parameter `qtotal`. So if `qtotal = 10`, you will get back 10 QAs.

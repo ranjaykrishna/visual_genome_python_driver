@@ -80,7 +80,7 @@ def get_scene_graph(image_id, images='data/',
 
 def get_scene_graphs(start_index=0, end_index=-1,
                      data_dir='data/', image_data_dir='data/by-id/',
-                     minRels=0, maxRels=100):
+                     min_rels=0, max_rels=100):
     """
     Get scene graphs given locally stored .json files;
     requires `save_scene_graphs_by_id`.
@@ -90,7 +90,7 @@ def get_scene_graphs(start_index=0, end_index=-1,
     data_dir : directory with `image_data.json` and `synsets.json`
     image_data_dir : directory of scene graph jsons saved by image id
                    (see `save_scene_graphs_by_id`)
-    minRels, maxRels: only get scene graphs with at least / less
+    min_rels, max_rels: only get scene graphs with at least / less
                       than this number of relationships
     """
     images = {img.id: img for img in get_all_image_data(data_dir)}
@@ -105,7 +105,7 @@ def get_scene_graphs(start_index=0, end_index=-1,
         scene_graph = get_scene_graph(
             image_id, images, image_data_dir, data_dir + 'synsets.json')
         n_rels = len(scene_graph.relationships)
-        if (minRels <= n_rels <= maxRels):
+        if (min_rels <= n_rels <= max_rels):
             scene_graphs.append(scene_graph)
 
     return scene_graphs
@@ -144,14 +144,14 @@ def map_object(object_map, obj):
     return object_map, object_
 
 
-"""
-Modified version of `utils.ParseGraph`.
-"""
 global count_skips
 count_skips = [0, 0]
 
 
 def parse_graph_local(data, image, verbose=False):
+    """
+    Modified version of `utils.ParseGraph`.
+    """
     global count_skips
     objects = []
     object_map = {}
