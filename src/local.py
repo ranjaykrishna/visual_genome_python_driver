@@ -157,7 +157,6 @@ def ParseGraphLocal(data, image, verbose=False):
     for attr in data['attributes']:
       a = attr['attribute']
       if a['object_id'] in object_map:
-        # attributes.append(Attribute(attr['attribute_id'], a['object_id'], a['names'], a['synsets']))
         # the second argument should be an Object 
         attributes.append(Attribute(attr['attribute_id'], 
           Object(a['object_id'], a['x'], a['y'], a['w'], a['h'], a['names'], a['synsets']), a['attributes'], a['synsets']))
