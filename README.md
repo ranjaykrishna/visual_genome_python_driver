@@ -1,12 +1,18 @@
 # Visual Genome Python Driver
 A python wrapper for the [Visual Genome API](https://visualgenome.org/api/v0/). Visit the website for a complete list of [object models](https://visualgenome.org/api/v0/api_object_model.html) and details about all [endpoints](https://visualgenome.org/api/v0/api_endpoint_reference.html). Look at our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see how you can use the python driver to access all the Visual Genome data.
 
+## Installation
+To install this wrapper, you can use pip, as it follows
+```bash
+pip install .
+```
+
 ### 2 ways of accessing the data
 There are 2 ways of accessing the visual genome data.
 
 1. Use the API functions to access the data directly from our server. You will not need to keep any local data available.
 2. Download all the data and use our local methods to parse and work with the visual genome data. 
-... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/src/data).
+... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/visual_genome/data).
 
 ### The API Functions are listed below.
 
@@ -14,8 +20,8 @@ There are 2 ways of accessing the visual genome data.
 All the data in Visual Genome must be accessed per image. Each image is identified by a unique id. So, the first step is to get the list of all image ids in the Visual Genome dataset.
 
 ```python
-> from src import api
-> ids = api.GetAllImageIds()
+> from visual_genome import api
+> ids = api.get_all_image_ids()
 > print ids[0]
 1
 ```
@@ -26,7 +32,7 @@ All the data in Visual Genome must be accessed per image. Each image is identifi
 There are 108,249 images currently in the Visual Genome dataset. Instead of getting all the image ids, you might want to just get the ids of a few images. To get the ids of images 2000 to 2010, you can use the following code:
 
 ```python
-> ids = api.GetImageIdsInRange(startIndex=2000, endIndex=2010)
+> ids = api.get_image_ids_in_range(startIndex=2000, endIndex=2010)
 > print ids
 [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
 ```
@@ -35,24 +41,24 @@ There are 108,249 images currently in the Visual Genome dataset. Instead of gett
 Now, let's get basic information about an image. Specifically, for a image id, we will extract the url of the image, it's width and height (dimensions). We will also collect it's COCO and Flickr ids from their respective datasets.
 
 ```python
-> image = api.GetImageData(id=61512)
+> image = api.get_image_data(id=61512)
 > print image
 id: 61512, coco_id: 248774, flickr_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG_100K/61512.jpg
 ```
 
-`GetImageData` returns an `Image` model that you can read about in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
+`get_image_data` returns an `Image` model that you can read about in [visual_genome/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/visual_genome/models.py).
 
 #### Get Region Descriptions for an image
 Now, let's get some exciting data: dense captions of an image. In Visual Genome, these are called region descriptions. Each region description is a textual description of a particular region in the image. A region is defined by it's top left coordinates (x, y) and a width and height.
 
 ```python
 # Let's get the regions for image with id=61512
-> regions = api.GetRegionDescriptionsOfImage(id=61512)
+> regions = api.get_region_descriptions_of_image(id=61512)
 > print regions[0]
 id: 1, x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
 ```
 
-`GetRegionDescriptionsOfImage` returns an array of `Region` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py).
+`get_region_descriptions_of_image` returns an array of `Region` objects which are defined in [visual_genome/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/visual_genome/models.py).
 Check out our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see these regions get visualized.
 
 #### Get Region Graph from Region.
@@ -60,7 +66,7 @@ Let's get the region graph of the Region we printed out above. Region Graphs are
 
 ```python
 # Remember that the region desription is 'A brown, sleek horse with a bridle'.
-> graph = api.GetSceneGraphOfImage()
+> graph = api.get_scene_graph_of_image()
 > print graph.objects
 [horse]
 >
@@ -81,7 +87,7 @@ Now, let's get the entire scene graph of an image. Each scene graph has three co
 
 ```python
 > # First, let's get the scene graph
-> graph = GetSceneGraphOfImage()
+> graph = api.get_scene_graph_of_image()
 > # Now let's print out the objects. We will only print out the names and not the bounding boxes to make it look clean.
 > print graph.objects
 [horse, grass, horse, bridle, truck, sign, gate, truck, tire, trough, window, door, building, halter, mane, mane, leaves, fence]
@@ -102,7 +108,7 @@ Let's now get all the Question Answers for one image. Each Question Answer objec
 
 ```python
 > # First extract the QAs for this image
-> qas = api.GetQAofImage(id=61512)
+> qas = api.get_QA_of_image(id=61512)
 >
 > # First print out some core information of the QA
 > print qas[0]
@@ -111,15 +117,15 @@ id: 991154, image: 61512, question: What color is the keyboard?, answer: Black.
 > # Now let's print out the question objects of the QA
 > print qas[0].q_objects
 []
-``` 
-`GetQAofImage` returns an array of `QA` objects which are defined in [src/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/src/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
+```
+`get_QA_of_image` returns an array of `QA` objects which are defined in [visual_genome/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/visual_genome/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
 
 #### Get all Questions Answers in the dataset
 We also have a function that allows you to get all the 1.7 million QAs in the Visual Genome dataset. If you do not want to get all the data, you can also specify how many QAs you want the function to return using the parameter `qtotal`. So if `qtotal = 10`, you will get back 10 QAs.
 
 ```python
 > # Let's get only 10 QAs and print out the first QA.
-> qas = api.GetAllQAs(qtotal=10)
+> qas = api.get_all_QAs(qtotal=10)
 > print qas[0]
 id: 133103, image: 1159944, question: What is tall with many windows?, answer: Buildings.
 ```
@@ -131,7 +137,7 @@ You might be interested in only collecting `why` questions. To query for a parti
 
 ```python
 > # Let's get the first 10 why QAs and print the first one.
-> qas = GetQAofType(qtotal=10)
+> qas = api.get_QA_of_type(qtotal=10)
 > print qas[0]
 id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an event.
 ```
@@ -141,29 +147,29 @@ id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an
 #### Downloading the data.
 ```bash
 > # Download all the image data.
-> ./src/data/getImageData.sh
+> ./visual_genome/data/getImageData.sh
 >
 > # Download all the region descriptions.
-> ./src/data/getRegionDescriptions.sh
+> ./visual_genome/data/getRegionDescriptions.sh
 >
 > # Download all the question answers.
-> ./src/data/getQuestionAnswers.sh
+> ./visual_genome/data/getQuestionAnswers.sh
 ```
 
 
 #### Get Scene Graphs for 200 images from local .json files
 
 ```python
-> import src.local as vg
+> import visual_genome.local as vg
 > 
 > # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
 > # These files will take up a total ~1.1G space on disk.
-> vg.SaveSceneGraphsById(dataDir='data/', imageDataDir='data/by-id/')
+> vg.save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/')
 > 
 > # Load scene graphs in 'data/by-id', from index 0 to 200.
 > # We'll only keep scene graphs with at least 1 relationship.
-> scene_graphs = vg.GetSceneGraphs(startIndex=0, endIndex=-1, minRels=1,
->                                  dataDir='data/', imageDataDir='data/by-id/')
+> scene_graphs = vg.get_scene_graphs(start_index=0, end_index=-1, min_rels=1,
+>                                    data_dir='data/', image_data_dir='data/by-id/')
 > 
 > print len(scene_graphs)
 149
