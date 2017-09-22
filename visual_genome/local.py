@@ -51,7 +51,7 @@ def get_all_qas(data_dir=None):
     images = json.load(open(data_file))
     output = []
     for image in images:
-        output.append(utils.ParseQA(image['qas'], image_map))
+        output.append(utils.parse_QA(image['qas'], image_map))
     return output
 
 
