@@ -109,7 +109,7 @@ def parse_relationships(data,image):
     """
     relationships = []
     for info in data:
-        relationships.append(Relationship(info['relationship_id'], image, info['subject'],
+        relationships.append(Relationships(info['relationship_id'], image, info['subject'],
                               info['predicate'], info['object'],info['synsets']))
     return relationships
 
@@ -119,7 +119,7 @@ def parse_attributes(data,image):
     """
     attributes = []
     for info in data:
-        attributes.append(Attribute(info['object_id'], image, info['names'],info['w'],info['h'],
+        attributes.append(Attributes(info['object_id'], image, info['names'],info['w'],info['h'],
                               info['x'],info['y'],info['attributes'] if 'attributes' in info else '',info['synsets']))
     return attributes
 

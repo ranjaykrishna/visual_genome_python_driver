@@ -114,6 +114,29 @@ class Relationship:
         subject    int
         predicate  string
         object     int
+        rel_canon  Synset
+    """
+
+    def __init__(self, id, subject, predicate, object, synset):
+        self.id = id
+        self.subject = subject
+        self.predicate = predicate
+        self.object = object
+        self.synset = synset
+
+    def __str__(self):
+        return "{0}: {1} {2} {3}".format(self.id, self.subject,
+                                         self.predicate, self.object)
+
+    def __repr__(self):
+        return str(self)
+
+class Relationships:
+    """
+    Relationships. Ex, 'man - jumping over - fire hydrant'.
+        subject    int
+        predicate  string
+        object     int
         phrase     string
         rel_canon  Synset
         image      int
@@ -150,6 +173,27 @@ class Relationship:
 
 
 class Attribute:
+    """
+    Attributes. Ex, 'man - old'.
+      subject    Object
+      attribute  string
+      synset     Synset
+    """
+
+    def __init__(self, id, subject, attribute, synset):
+        self.id = id
+        self.subject = subject
+        self.attribute = attribute
+        self.synset = synset
+
+    def __str__(self):
+        return "%d: %s is %s" % (self.id, self.subject, self.attribute)
+
+    def __repr__(self):
+        return str(self)
+
+
+class Attributes:
     """
     Attributes. Ex, 'man - old'.
       subject    Object
