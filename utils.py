@@ -3,7 +3,7 @@ import json
 import requests
 from os.path import dirname, realpath, join
 from visual_genome.models import (Image, Object, Attribute, Relationship,
-                                  Region, Graph, QA, QAObject, Synset)
+                                  Region, Graph, QA, QAObject, Synset,Attributes,Relationships)
 
 
 def get_data_dir():
