@@ -67,7 +67,7 @@ class Graph:
     """
     Graphs contain objects, relationships and attributes
       image            Image
-      bboxes           Object array
+      objects          Objects array
       relationships    Relationship array
       attributes       Attribute array
     """
