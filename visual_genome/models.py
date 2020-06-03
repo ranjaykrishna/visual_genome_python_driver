@@ -21,12 +21,12 @@ class Image:
         self.flickr_id = flickr_id
 
     def __str__(self):
-        return 'id: %d, coco_id: %d, flickr_id: %d, width: %d, url: %s' \
+        return 'id: %d, coco_id: %d, flickr_id: %d, width: %d, height: %d, url: %s' \
             % (self.id, -1
                 if self.coco_id is None
                 else self.coco_id, -1
                 if self.flickr_id is None
-                else self.flickr_id, self.width, self.url)
+                else self.flickr_id, self.width, self.height, self.url)
 
     def __repr__(self):
         return str(self)
