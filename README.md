@@ -11,7 +11,7 @@ pip install .
 There are 2 ways of accessing the visual genome data.
 
 1. Use the API functions to access the data directly from our server. You will not need to keep any local data available.
-2. Download all the data and use our local methods to parse and work with the visual genome data. 
+2. Download all the data and use our local methods to parse and work with the visual genome data.
 ... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/visual_genome/data).
 
 ### The API Functions are listed below.
@@ -22,7 +22,7 @@ All the data in Visual Genome must be accessed per image. Each image is identifi
 ```python
 > from visual_genome import api
 > ids = api.get_all_image_ids()
-> print ids[0]
+> print(ids[0])
 1
 ```
 
@@ -32,8 +32,8 @@ All the data in Visual Genome must be accessed per image. Each image is identifi
 There are 108,249 images currently in the Visual Genome dataset. Instead of getting all the image ids, you might want to just get the ids of a few images. To get the ids of images 2000 to 2010, you can use the following code:
 
 ```python
-> ids = api.get_image_ids_in_range(startIndex=2000, endIndex=2010)
-> print ids
+> ids = api.get_image_ids_in_range(start_index=2000, end_index=2010)
+> print(ids)
 [2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009, 2010, 2011]
 ```
 
@@ -42,7 +42,7 @@ Now, let's get basic information about an image. Specifically, for a image id, w
 
 ```python
 > image = api.get_image_data(id=61512)
-> print image
+> print(image)
 id: 61512, coco_id: 248774, flickr_id: 6273011878, width: 1024, url: https://cs.stanford.edu/people/rak248/VG_100K/61512.jpg
 ```
 
@@ -54,7 +54,7 @@ Now, let's get some exciting data: dense captions of an image. In Visual Genome,
 ```python
 # Let's get the regions for image with id=61512
 > regions = api.get_region_descriptions_of_image(id=61512)
-> print regions[0]
+> print(regions[0])
 id: 1, x: 511, y: 241, width: 206, height: 320, phrase: A brown, sleek horse with a bridle, image: 61512
 ```
 
@@ -66,16 +66,16 @@ Let's get the region graph of the Region we printed out above. Region Graphs are
 
 ```python
 # Remember that the region desription is 'A brown, sleek horse with a bridle'.
-> graph = api.get_scene_graph_of_image()
-> print graph.objects
+> graph = api.get_region_graph_of_region(image_id=61512, region_id=1)
+> print(graph.objects)
 [horse]
 >
 >
-> print graph.attributes
+> print(graph.attributes)
 [horse is brown]
 >
 >
-print graph.relationships
+print(graph.relationships)
 []
 ```
 
@@ -87,19 +87,19 @@ Now, let's get the entire scene graph of an image. Each scene graph has three co
 
 ```python
 > # First, let's get the scene graph
-> graph = api.get_scene_graph_of_image()
+> graph = api.get_scene_graph_of_image(id=61512)
 > # Now let's print out the objects. We will only print out the names and not the bounding boxes to make it look clean.
-> print graph.objects
+> print(graph.objects)
 [horse, grass, horse, bridle, truck, sign, gate, truck, tire, trough, window, door, building, halter, mane, mane, leaves, fence]
 >
 >
 > # Now, let's print out the attributes
-> print graph.attributes
+> print(graph.attributes)
 [3015675: horse is brown, 3015676: horse is spotted, 3015677: horse is red, 3015678: horse is dark brown, 3015679: truck is red, 3015680: horse is brown, 3015681: truck is red, 3015682: sign is blue, 3015683: gate is red, 3015684: truck is white, 3015685: tire is blue, 3015686: gate is wooden, 3015687: horse is standing, 3015688: truck is red, 3015689: horse is brown and white, 3015690: building is tan, 3015691: halter is red, 3015692: horse is brown, 3015693: gate is wooden, 3015694: grass is grassy, 3015695: truck is red, 3015696: gate is orange, 3015697: halter is red, 3015698: tire is blue, 3015699: truck is white, 3015700: trough is white, 3015701: horse is brown and cream, 3015702: leaves is green, 3015703: grass is lush, 3015704: horse is enclosed, 3015705: horse is brown and white, 3015706: horse is chestnut, 3015707: gate is red, 3015708: leaves is green, 3015709: building is brick, 3015710: truck is large, 3015711: gate is red, 3015712: horse is chestnut colored, 3015713: fence is wooden]
 >
 >
 > # Finally, let's print out the relationships
-> print graph.relationships
+> print(graph.relationships)
 [3199950: horse stands on top of grass, 3199951: horse is in grass, 3199952: horse is wearing bridle, 3199953: trough is for horse, 3199954: window is next to door, 3199955: building has door, 3199956: horse is nudging horse, 3199957: horse has mane, 3199958: horse has mane, 3199959: trough is for horse]
 ```
 
@@ -111,11 +111,11 @@ Let's now get all the Question Answers for one image. Each Question Answer objec
 > qas = api.get_QA_of_image(id=61512)
 >
 > # First print out some core information of the QA
-> print qas[0]
+> print(qas[0])
 id: 991154, image: 61512, question: What color is the keyboard?, answer: Black.
 >
 > # Now let's print out the question objects of the QA
-> print qas[0].q_objects
+> print(qas[0].q_objects)
 []
 ```
 `get_QA_of_image` returns an array of `QA` objects which are defined in [visual_genome/models.py](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/visual_genome/models.py). The attributes `q_objects` and `a_objects` are both an array of `QAObject`, which is also defined there.
@@ -126,7 +126,7 @@ We also have a function that allows you to get all the 1.7 million QAs in the Vi
 ```python
 > # Let's get only 10 QAs and print out the first QA.
 > qas = api.get_all_QAs(qtotal=10)
-> print qas[0]
+> print(qas[0])
 id: 133103, image: 1159944, question: What is tall with many windows?, answer: Buildings.
 ```
 
@@ -138,7 +138,7 @@ You might be interested in only collecting `why` questions. To query for a parti
 ```python
 > # Let's get the first 10 why QAs and print the first one.
 > qas = api.get_QA_of_type(qtotal=10)
-> print qas[0]
+> print(qas[0])
 id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an event.
 ```
 
@@ -161,20 +161,20 @@ id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an
 
 ```python
 > import visual_genome.local as vg
-> 
+>
 > # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
 > # These files will take up a total ~1.1G space on disk.
 > vg.save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/')
-> 
+>
 > # Load scene graphs in 'data/by-id', from index 0 to 200.
 > # We'll only keep scene graphs with at least 1 relationship.
 > scene_graphs = vg.get_scene_graphs(start_index=0, end_index=-1, min_rels=1,
 >                                    data_dir='data/', image_data_dir='data/by-id/')
-> 
-> print len(scene_graphs)
+>
+> print(len(scene_graphs))
 149
-> 
-> print scene_graphs[0].objects
+>
+> print(scene_graphs[0].objects)
 [clock, street, shade, man, sneakers, headlight, car, bike, bike, sign, building, ... , street, sidewalk, trees, car, work truck]
 ```
 
@@ -190,4 +190,3 @@ Follow us on Twitter:
 
 ### Want to Help?
 If you'd like to help, write example code, contribute patches, document methods, tweet about it. Your help is always appreciated!
-
