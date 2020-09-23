@@ -1,3 +1,4 @@
 *.pyc
 .ipynb_checkpoints/*
 src/data/*.json
+.DS_Store
