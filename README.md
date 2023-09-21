@@ -1,5 +1,7 @@
 # Visual Genome Python Driver
-A python wrapper for the [Visual Genome API](https://visualgenome.org/api/v0/). Visit the website for a complete list of [object models](https://visualgenome.org/api/v0/api_object_model.html) and details about all [endpoints](https://visualgenome.org/api/v0/api_endpoint_reference.html). Look at our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see how you can use the python driver to access all the Visual Genome data.
+A python wrapper for the [Visual Genome API]([https://visualgenome.org/api/v0/](https://homes.cs.washington.edu/~ranjay/visualgenome/api.html)). 
+
+We no longer support the API endpoints. You can still download the dataset and use this driver once you have the data locally. Look at our [demo](https://github.com/ranjaykrishna/visual_genome_python_driver/blob/master/region_visualization_demo.ipynb) to see how you can use the python driver to access all the Visual Genome data.
 
 ## Installation
 To install this wrapper, you can use pip, as it follows
@@ -10,11 +12,61 @@ pip install .
 ### 2 ways of accessing the data
 There are 2 ways of accessing the visual genome data.
 
-1. Use the API functions to access the data directly from our server. You will not need to keep any local data available.
+1. [Deprecated] Use the API functions to access the data directly from our server. You will not need to keep any local data available.
 2. Download all the data and use our local methods to parse and work with the visual genome data. 
 ... You can download the data either from the [Visual Genome website](https://visualgenome.org/api/v0/) or by using the download scripts in the [data directory](https://github.com/ranjaykrishna/visual_genome_python_driver/tree/master/visual_genome/data).
 
-### The API Functions are listed below.
+### The local functions are listed below.
+
+#### Downloading the data.
+```bash
+> # Download all the image data.
+> ./visual_genome/data/getImageData.sh
+>
+> # Download all the region descriptions.
+> ./visual_genome/data/getRegionDescriptions.sh
+>
+> # Download all the question answers.
+> ./visual_genome/data/getQuestionAnswers.sh
+```
+
+
+#### Get Scene Graphs for 200 images from local .json files
+
+```python
+> import visual_genome.local as vg
+> 
+> # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
+> # These files will take up a total ~1.1G space on disk.
+> vg.save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/')
+> 
+> # Load scene graphs in 'data/by-id', from index 0 to 200.
+> # We'll only keep scene graphs with at least 1 relationship.
+> scene_graphs = vg.get_scene_graphs(start_index=0, end_index=-1, min_rels=1,
+>                                    data_dir='data/', image_data_dir='data/by-id/')
+> 
+> print len(scene_graphs)
+149
+> 
+> print scene_graphs[0].objects
+[clock, street, shade, man, sneakers, headlight, car, bike, bike, sign, building, ... , street, sidewalk, trees, car, work truck]
+```
+
+### License
+MIT License copyright Ranjay Krishna
+
+### Questions? Comments?
+My hope is that the API and the python wrapper are so easy that you never have to ask questions. But if you have any question, you can contact me directly at ranjaykrishna at gmail or contact the project at stanfordvisualgenome @ gmail.
+
+Follow us on Twitter:
+- [@RanjayKrishna](https://twitter.com/RanjayKrishna)
+- [@VisualGenome](https://twitter.com/visualgenome)
+
+### Want to Help?
+If you'd like to help, write example code, contribute patches, document methods, tweet about it. Your help is always appreciated!
+
+
+### [Deprecated] The API Functions listed below are now deprecated.
 
 #### Get all Visual Genome image ids
 All the data in Visual Genome must be accessed per image. Each image is identified by a unique id. So, the first step is to get the list of all image ids in the Visual Genome dataset.
@@ -141,53 +193,3 @@ You might be interested in only collecting `why` questions. To query for a parti
 > print qas[0]
 id: 133089, image: 1159910, question: Why is the man cosplaying?, answer: For an event.
 ```
-
-### The local functions are listed below.
-
-#### Downloading the data.
-```bash
-> # Download all the image data.
-> ./visual_genome/data/getImageData.sh
->
-> # Download all the region descriptions.
-> ./visual_genome/data/getRegionDescriptions.sh
->
-> # Download all the question answers.
-> ./visual_genome/data/getQuestionAnswers.sh
-```
-
-
-#### Get Scene Graphs for 200 images from local .json files
-
-```python
-> import visual_genome.local as vg
-> 
-> # Convert full .json files to image-specific .jsons, save these to 'data/by-id'.
-> # These files will take up a total ~1.1G space on disk.
-> vg.save_scene_graphs_by_id(data_dir='data/', image_data_dir='data/by-id/')
-> 
-> # Load scene graphs in 'data/by-id', from index 0 to 200.
-> # We'll only keep scene graphs with at least 1 relationship.
-> scene_graphs = vg.get_scene_graphs(start_index=0, end_index=-1, min_rels=1,
->                                    data_dir='data/', image_data_dir='data/by-id/')
-> 
-> print len(scene_graphs)
-149
-> 
-> print scene_graphs[0].objects
-[clock, street, shade, man, sneakers, headlight, car, bike, bike, sign, building, ... , street, sidewalk, trees, car, work truck]
-```
-
-### License
-MIT License copyright Ranjay Krishna
-
-### Questions? Comments?
-My hope is that the API and the python wrapper are so easy that you never have to ask questions. But if you have any question, you can contact me directly at ranjaykrishna at gmail or contact the project at stanfordvisualgenome @ gmail.
-
-Follow us on Twitter:
-- [@RanjayKrishna](https://twitter.com/RanjayKrishna)
-- [@VisualGenome](https://twitter.com/visualgenome)
-
-### Want to Help?
-If you'd like to help, write example code, contribute patches, document methods, tweet about it. Your help is always appreciated!
-
